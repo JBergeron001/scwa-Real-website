@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Explore | SCWA</title>
+<meta name="description" content="Places in St. Charles County where you can see flood storage, clean water, habitat, greenways and neighborhood stormwater work in person.">
+<meta property="og:title" content="Explore | SCWA">
+<meta property="og:description" content="Places in St. Charles County where you can see flood storage, clean water, habitat, greenways and neighborhood stormwater work in person.">
+<meta property="og:image" content="https://www.stcharleswatershedsalliance.com/images/social-preview.png">
+<link rel="icon" href="images/favicon.png">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="brand" href="index.html"><img src="images/logo.png" alt="St. Charles Watersheds Alliance logo"><span>St. Charles<br>Watersheds Alliance</span></a>
+    <button class="nav-toggle" aria-label="Open menu" aria-expanded="false" aria-controls="site-nav">&#9776;</button>
+    <nav class="nav" id="site-nav" aria-label="Main"><ul><li><a href="index.html">Home</a></li><li><a href="about.html">About</a></li><li><a href="projects.html">Projects</a></li><li><a href="explore.html" class="active">Explore</a></li><li><a href="resources.html">Resources</a></li><li><a href="events.html">Events &amp; News</a></li><li><a href="get-involved.html">Get Involved</a></li><li><a class="cta" href="get-involved.html#sponsor">Donate</a></li></ul></nav>
+  </div>
+</header>
+<main>
+<section class="page-hero" style="background-image:url('images/projects/g10.jpg')"><div class="container">
+  <span class="eyebrow">See it in person</span><h1>Explore</h1><p>Places across St. Charles County where you can see healthy watersheds at work.</p></div><div class="wave"><svg viewBox="0 0 1440 70" preserveAspectRatio="none"><path fill="#ffffff" d="M0,40 C240,80 480,0 720,30 C960,60 1200,10 1440,35 L1440,70 L0,70 Z"></path></svg></div></section>
+<section class="section"><div class="container">
+  <div class="center reveal"><span class="eyebrow">Watershed places</span><h2>Where to see it in St. Charles County</h2><div class="bar"></div>
+  <p class="lead">Some of these places store floodwater, clean runoff and give wildlife room to live. Others show stormwater work built into parks, streets and neighborhoods. Pick a goal to filter the map and the list.</p></div>
+  <div class="ex-filters" role="toolbar" aria-label="Filter places by goal"><button type="button" class="ex-chip is-on" data-goal="all" aria-pressed="true">All places</button><button type="button" class="ex-chip" data-goal="flood" aria-pressed="false">Flood storage</button><button type="button" class="ex-chip" data-goal="wq" aria-pressed="false">Water quality</button><button type="button" class="ex-chip" data-goal="habitat" aria-pressed="false">Habitat</button><button type="button" class="ex-chip" data-goal="greenway" aria-pressed="false">Connected greenways</button><button type="button" class="ex-chip" data-goal="edu" aria-pressed="false">Public education</button><button type="button" class="ex-chip" data-goal="built" aria-pressed="false">Built into neighborhoods</button></div>
+  <div class="ex-legend"><span><i class="dot natural"></i>Natural place</span><span><i class="dot built"></i>Built example</span><span><i class="dot learn"></i>Learning center</span><span class="ex-count" aria-live="polite"></span></div>
+  <div id="ex-map" class="ex-map" role="region" aria-label="Map of watershed places"></div>
+  <p class="ex-note">Pins marked &ldquo;approximate&rdquo; show the general area. Use each place&rsquo;s Directions link for the exact location. Map data &copy; OpenStreetMap contributors.</p>
+  <div class="ex-grid">
+<article class="ex-card reveal" id="confluence" data-goals="flood habitat edu" data-kind="natural" data-lat="38.8175" data-lng="-90.1197">
+  <div class="ex-img ex-natural"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Mississippi%20Missouri%20confluence%20point.jpg?width=960" alt="Confluence Point State Park" loading="lazy" onerror="this.hidden=true;this.nextElementSibling.hidden=false"><div class="ex-fallback" hidden><span>Confluence Point State Park</span></div><span class="ex-kind">Natural place</span></div>
+  <div class="ex-body"><p class="ex-where">West Alton</p><h3>Confluence Point State Park</h3><div class="ex-tags"><span class="tag g-flood">Flood storage</span><span class="tag g-habitat">Habitat</span><span class="tag g-edu">Public education</span></div>
+  <p>The 1,121-acre park sits where the Missouri River meets the Mississippi. It floods often, so the state is letting much of it return to natural floodplain instead of fighting the water.</p><p class="ex-look"><strong>What to look for:</strong> Where the two rivers meet, the water color changes, the restored wetland and bottomland, and the signs that explain both rivers.</p><p class="ex-credit">Photo: <a href="https://commons.wikimedia.org/wiki/File:Mississippi_Missouri_confluence_point.jpg" target="_blank" rel="noopener">Kbh3rd</a>, CC BY-SA 3.0, via Wikimedia Commons</p>
+  <div class="ex-links"><a href="https://mostateparks.com/park/edward-ted-and-pat-jones-confluence-point-state-park" target="_blank" rel="noopener">Missouri State Parks &rarr;</a><a href="https://www.google.com/maps/search/?api=1&query=Confluence+Point+State+Park%2C+West+Alton%2C+MO" target="_blank" rel="noopener">Directions &rarr;</a></div></div>
+</article>
+<article class="ex-card reveal" id="riverlands" data-goals="flood habitat edu" data-kind="natural" data-lat="38.8692" data-lng="-90.1855">
+  <div class="ex-img ex-natural"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Tundra%20Swan%20-%209%20flying%20together%20%2824611344415%29.jpg?width=960" alt="Riverlands Migratory Bird Sanctuary &amp; Audubon Center" loading="lazy" onerror="this.hidden=true;this.nextElementSibling.hidden=false"><div class="ex-fallback" hidden><span>Riverlands Migratory Bird Sanctuary &amp; Audubon Center</span></div><span class="ex-kind">Natural place</span></div>
+  <div class="ex-body"><p class="ex-where">West Alton</p><h3>Riverlands Migratory Bird Sanctuary &amp; Audubon Center</h3><div class="ex-tags"><span class="tag g-flood">Flood storage</span><span class="tag g-habitat">Habitat</span><span class="tag g-edu">Public education</span></div>
+  <p>About 3,700 acres of Mississippi River floodplain, with roughly 1,200 acres of restored marsh and bottomland prairie. The Army Corps of Engineers manages the sanctuary, and the Audubon Center explains how the river, the birds and the floodplain fit together.</p><p class="ex-look"><strong>What to look for:</strong> Swans and eagles in winter, the restored marsh, and the river and flyway exhibits at the Audubon Center (free; check its hours before you go).</p><p class="ex-credit">Photo: <a href="https://commons.wikimedia.org/wiki/File:Tundra_Swan_-_9_flying_together_%2824611344415%29.jpg" target="_blank" rel="noopener">Andy Reago &amp; Chrissy McClarren</a>, CC BY 2.0, via Wikimedia Commons</p>
+  <div class="ex-links"><a href="https://riverlands.audubon.org/" target="_blank" rel="noopener">Audubon Center at Riverlands &rarr;</a><a href="https://www.google.com/maps/search/?api=1&query=301+Riverlands+Way%2C+West+Alton%2C+MO+63386" target="_blank" rel="noopener">Directions &rarr;</a></div></div>
+</article>
+<article class="ex-card reveal" id="marais" data-goals="flood habitat" data-kind="natural" data-lat="38.9117" data-lng="-90.416">
+  <div class="ex-img ex-natural"><div class="ex-fallback"><span>Marais Temps Clair Conservation Area</span></div><span class="ex-kind">Natural place</span></div>
+  <div class="ex-body"><p class="ex-where">Portage des Sioux area</p><h3>Marais Temps Clair Conservation Area</h3><div class="ex-tags"><span class="tag g-flood">Flood storage</span><span class="tag g-habitat">Habitat</span></div>
+  <p>A 918-acre wetland in an old Missouri River oxbow. It is a remnant of the marsh that once stretched across the lowlands from St. Charles toward Alton. A wetland like this soaks up floodwater and filters it slowly.</p><p class="ex-look"><strong>What to look for:</strong> The shallow marsh pools, waterbirds during spring and fall migration, and how flat and low the old riverbed is.</p>
+  <div class="ex-links"><a href="https://mdc.mo.gov/discover-nature/places/marais-temps-clair-conservation-area" target="_blank" rel="noopener">Missouri Dept. of Conservation &rarr;</a><a href="https://www.google.com/maps/search/?api=1&query=Marais+Temps+Clair+Conservation+Area%2C+MO" target="_blank" rel="noopener">Directions &rarr;</a></div></div>
+</article>
+<article class="ex-card reveal" id="busch" data-goals="habitat wq edu" data-kind="natural" data-lat="38.7183" data-lng="-90.7556">
+  <div class="ex-img ex-natural"><div class="ex-fallback"><span>August A. Busch Memorial Conservation Area</span></div><span class="ex-kind">Natural place</span></div>
+  <div class="ex-body"><p class="ex-where">Weldon Spring area</p><h3>August A. Busch Memorial Conservation Area</h3><div class="ex-tags"><span class="tag g-habitat">Habitat</span><span class="tag g-wq">Water quality</span><span class="tag g-edu">Public education</span></div>
+  <p>6,987 acres of oak woodland, restored prairie, seasonal wetlands and more than 30 fishing lakes, all inside a fast-growing part of the County. It is part of an Important Bird Area that also takes in Weldon Spring and Howell Island.</p><p class="ex-look"><strong>What to look for:</strong> The restored prairies, the wetland edges, the lake shorelines, and the MDC programs held on site. Check MDC for any closed areas before you go.</p>
+  <div class="ex-links"><a href="https://mdc.mo.gov/discover-nature/places/august-busch-memorial-conservation-area" target="_blank" rel="noopener">Missouri Dept. of Conservation &rarr;</a><a href="https://www.google.com/maps/search/?api=1&query=August+A.+Busch+Memorial+Conservation+Area%2C+St.+Charles%2C+MO" target="_blank" rel="noopener">Directions &rarr;</a></div></div>
+</article>
+<article class="ex-card reveal" id="weldon" data-goals="habitat greenway flood" data-kind="natural" data-lat="38.7059" data-lng="-90.7052">
+  <div class="ex-img ex-natural"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Gfp-missouri-weldon-springs-trail-near-lake.jpg?width=960" alt="Weldon Spring Conservation Area &amp; Katy Trail" loading="lazy" onerror="this.hidden=true;this.nextElementSibling.hidden=false"><div class="ex-fallback" hidden><span>Weldon Spring Conservation Area &amp; Katy Trail</span></div><span class="ex-kind">Natural place</span></div>
+  <div class="ex-body"><p class="ex-where">Weldon Spring area</p><h3>Weldon Spring Conservation Area &amp; Katy Trail</h3><div class="ex-tags"><span class="tag g-habitat">Habitat</span><span class="tag g-greenway">Connected greenways</span><span class="tag g-flood">Flood storage</span></div>
+  <p>8,398 acres of forest, bluffs and Missouri River bottomland. The Katy Trail runs right through it, connecting this natural area to towns up and down the river.</p><p class="ex-look"><strong>What to look for:</strong> The bluff-top views over the river bottoms, the forested hollows, and how the trail follows the floodplain edge.</p><p class="ex-credit">Photo: <a href="https://commons.wikimedia.org/wiki/File:Gfp-missouri-weldon-springs-trail-near-lake.jpg" target="_blank" rel="noopener">Yinan Chen</a>, Public domain, via Wikimedia Commons</p>
+  <div class="ex-links"><a href="https://mdc.mo.gov/discover-nature/places/weldon-spring-conservation-area" target="_blank" rel="noopener">Missouri Dept. of Conservation &rarr;</a><a href="https://www.google.com/maps/search/?api=1&query=Weldon+Spring+Conservation+Area%2C+MO" target="_blank" rel="noopener">Directions &rarr;</a></div></div>
+</article>
+<article class="ex-card reveal" id="howell" data-goals="flood habitat" data-kind="natural" data-lat="38.663" data-lng="-90.709">
+  <div class="ex-img ex-natural"><div class="ex-fallback"><span>Howell Island Conservation Area</span></div><span class="ex-kind">Natural place</span></div>
+  <div class="ex-body"><p class="ex-where">Missouri River, near Chesterfield</p><h3>Howell Island Conservation Area</h3><div class="ex-tags"><span class="tag g-flood">Flood storage</span><span class="tag g-habitat">Habitat</span></div>
+  <p>A 2,548-acre island in the Missouri River. The whole island went under water in the 1993 flood, and its bottomland forest and wetlands are built to take high water.</p><p class="ex-look"><strong>What to look for:</strong> Bottomland forest and side channels. You can only reach the island by boat, so many visitors view it from the riverbank.</p>
+  <div class="ex-links"><a href="https://mdc.mo.gov/discover-nature/places/howell-island-conservation-area" target="_blank" rel="noopener">Missouri Dept. of Conservation &rarr;</a><a href="https://www.google.com/maps/search/?api=1&query=Howell+Island+Conservation+Area%2C+MO" target="_blank" rel="noopener">Directions &rarr;</a></div></div>
+</article>
+<article class="ex-card reveal" id="dardenne" data-goals="wq greenway habitat edu" data-kind="natural" data-lat="38.8605" data-lng="-90.5363">
+  <div class="ex-img ex-natural"><div class="ex-fallback"><span>Dardenne Creek &amp; the Dardenne Creek Blueway</span></div><span class="ex-kind">Natural place</span></div>
+  <div class="ex-body"><p class="ex-where">Riverside Landing, St. Charles</p><h3>Dardenne Creek &amp; the Dardenne Creek Blueway</h3><div class="ex-tags"><span class="tag g-wq">Water quality</span><span class="tag g-greenway">Connected greenways</span><span class="tag g-habitat">Habitat</span><span class="tag g-edu">Public education</span></div>
+  <p>Dardenne Creek drains about 165 square miles of the County. In 2010, after clean-up work, a 6-mile stretch was taken off the state&rsquo;s impaired-waters list. The Blueway was Missouri&rsquo;s first water trail of its kind, and the County is extending it upstream toward Bluebird Meadow Park in Dardenne Prairie.</p><p class="ex-look"><strong>What to look for:</strong> Paddle from Riverside Landing, where Dardenne Creek meets the Mississippi. Watch the creek banks, the riffles and the wildlife along the water. The park offers kayak rentals.</p>
+  <div class="ex-links"><a href="https://www.sccmo.org/2248/Blueways" target="_blank" rel="noopener">St. Charles County Parks: Blueways &rarr;</a><a href="https://www.epa.gov/sites/default/files/2015-10/documents/mo_dardenne-2.pdf" target="_blank" rel="noopener">EPA success story (PDF) &rarr;</a><a href="https://www.google.com/maps/search/?api=1&query=101+Riverport+Ln%2C+St.+Charles%2C+MO+63301" target="_blank" rel="noopener">Directions &rarr;</a></div></div>
+</article>
+<article class="ex-card reveal" id="peruque" data-goals="wq flood" data-kind="natural" data-lat="38.795" data-lng="-90.785" data-approx="1">
+  <div class="ex-img ex-natural"><div class="ex-fallback"><span>Peruque Creek &amp; Lake Saint Louis watershed</span></div><span class="ex-kind">Natural place</span></div>
+  <div class="ex-body"><p class="ex-where">Wentzville, Lake Saint Louis, O&rsquo;Fallon</p><h3>Peruque Creek &amp; Lake Saint Louis watershed</h3><div class="ex-tags"><span class="tag g-wq">Water quality</span><span class="tag g-flood">Flood storage</span></div>
+  <p>A fast-growing watershed that feeds Lake Saint Louis. It now has a nine-element watershed plan prepared with Missouri DNR (2025 draft), which lays out where runoff and sediment come from and what local projects could fix it.</p><p class="ex-look"><strong>What to look for:</strong> Read the plan first, then look at how new neighborhoods, creeks and the lake connect along the Peruque Creek corridor.</p>
+  <div class="ex-links"><a href="https://www.wentzvillemo.gov/wp-content/uploads/2025/04/DNR_Peruque-Creek-Lake-Saint-Louis-Nine-Element-Plan_20250404-DRAFT.pdf" target="_blank" rel="noopener">Watershed plan, 2025 draft (PDF) &rarr;</a><a href="https://www.google.com/maps/search/?api=1&query=Lake+Saint+Louis%2C+MO" target="_blank" rel="noopener">Directions &rarr;</a></div></div>
+</article>
+<article class="ex-card reveal" id="newtown" data-goals="built flood wq" data-kind="built" data-lat="38.8366" data-lng="-90.4947" data-approx="1">
+  <div class="ex-img ex-built"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/NewTownLakeSwimming.jpg?width=960" alt="New Town at St. Charles" loading="lazy" onerror="this.hidden=true;this.nextElementSibling.hidden=false"><div class="ex-fallback" hidden><span>New Town at St. Charles</span></div><span class="ex-kind">Built example</span></div>
+  <div class="ex-body"><p class="ex-where">St. Charles</p><h3>New Town at St. Charles</h3><div class="ex-tags"><span class="tag g-built">Built into neighborhoods</span><span class="tag g-flood">Flood storage</span><span class="tag g-wq">Water quality</span></div>
+  <p>A walkable neighborhood built around a network of lakes and canals that hold and slow the runoff from more than 700 acres. Its stormwater system is also its main scenery.</p><p class="ex-look"><strong>What to look for:</strong> How the canals and lakes run alongside the streets and homes, and where the runoff flows in from the streets.</p><p class="ex-credit">Photo: <a href="https://commons.wikimedia.org/wiki/File:NewTownLakeSwimming.jpg" target="_blank" rel="noopener">Wikimedia Commons contributor</a>, see file page, via Wikimedia Commons</p>
+  <div class="ex-links"><a href="https://www.newtownatstcharles.com/" target="_blank" rel="noopener">New Town at St. Charles &rarr;</a><a href="https://www.google.com/maps/search/?api=1&query=New+Town%2C+St.+Charles%2C+MO+63301" target="_blank" rel="noopener">Directions &rarr;</a></div></div>
+</article>
+<article class="ex-card reveal" id="heartland" data-goals="built wq edu habitat" data-kind="built" data-lat="38.8196" data-lng="-90.8724">
+  <div class="ex-img ex-built"><div class="ex-fallback"><span>Heartland Park &amp; Heartland Lake</span></div><span class="ex-kind">Built example</span></div>
+  <div class="ex-body"><p class="ex-where">Wentzville</p><h3>Heartland Park &amp; Heartland Lake</h3><div class="ex-tags"><span class="tag g-built">Built into neighborhoods</span><span class="tag g-wq">Water quality</span><span class="tag g-edu">Public education</span><span class="tag g-habitat">Habitat</span></div>
+  <p>A city park built around stormwater-smart design: bioswales, rain gardens, native plantings, and a sediment forebay that keeps soil out of the lake. Wentzville Parks manages it with MDC.</p><p class="ex-look"><strong>What to look for:</strong> The signs at the sediment forebay at the east end of the lake, and the bioswales and rain gardens. The boardwalk has been closed for safety, so check with the city before you go.</p>
+  <div class="ex-links"><a href="https://www.wentzvillemo.gov/parks-and-recreation/parks-facilities/find-a-park-or-facility/heartland-park/" target="_blank" rel="noopener">City of Wentzville: Heartland Park &rarr;</a><a href="https://www.wentzvillemo.gov/departments/public_works/stormwater_management/community_projects_2/Dry_Branch_319_Project.php" target="_blank" rel="noopener">Wentzville Dry Branch watershed project &rarr;</a><a href="https://www.google.com/maps/search/?api=1&query=100+William+Dierberg+Dr%2C+Wentzville%2C+MO+63385" target="_blank" rel="noopener">Directions &rarr;</a></div></div>
+</article>
+<article class="ex-card reveal" id="lec" data-goals="built wq edu" data-kind="built" data-lat="38.8095" data-lng="-90.853" data-approx="1">
+  <div class="ex-img ex-built"><div class="ex-fallback"><span>Wentzville Law Enforcement Center basin retrofit</span></div><span class="ex-kind">Built example</span></div>
+  <div class="ex-body"><p class="ex-where">Wentzville</p><h3>Wentzville Law Enforcement Center basin retrofit</h3><div class="ex-tags"><span class="tag g-built">Built into neighborhoods</span><span class="tag g-wq">Water quality</span><span class="tag g-edu">Public education</span></div>
+  <p>An ordinary detention basin turned into a planted one, with more than 500 native plants that slow, soak up and clean runoff from the site. It shows how an existing basin can be upgraded instead of rebuilt.</p><p class="ex-look"><strong>What to look for:</strong> The native plantings across the basin floor and how the water moves through them. The city has a video tour on its project page.</p>
+  <div class="ex-links"><a href="https://www.wentzvillemo.gov/departments/public_works/stormwater_management/community_projects_2/lec_basin_retrofit.php" target="_blank" rel="noopener">City of Wentzville project page &rarr;</a><a href="https://www.google.com/maps/search/?api=1&query=1019+Schroeder+Creek+Blvd%2C+Wentzville%2C+MO+63385" target="_blank" rel="noopener">Directions &rarr;</a></div></div>
+</article>
+<article class="ex-card reveal" id="muext" data-goals="edu" data-kind="learn" data-lat="38.7836" data-lng="-90.6086" data-approx="1">
+  <div class="ex-img ex-learn"><div class="ex-fallback"><span>MU Extension in St. Charles County</span></div><span class="ex-kind">Learning center</span></div>
+  <div class="ex-body"><p class="ex-where">260 Brown Road, St. Peters</p><h3>MU Extension in St. Charles County</h3><div class="ex-tags"><span class="tag g-edu">Public education</span></div>
+  <p>The University of Missouri&rsquo;s County office. It runs the Extension Master Gardener course and hands-on workshops, offers soil testing, and has specialists in horticulture, Missouri Master Naturalist and community leadership. It also runs 4-H and nutrition and health programs. Call 636-970-3000.</p><p class="ex-look"><strong>What to look for:</strong> The Master Gardener Demonstration Garden on site. A soil test before you fertilize is also an easy way to keep extra nutrients out of runoff.</p>
+  <div class="ex-links"><a href="https://extension.missouri.edu/counties/st-charles" target="_blank" rel="noopener">MU Extension in St. Charles County &rarr;</a><a href="https://www.google.com/maps/search/?api=1&query=260+Brown+Road%2C+St.+Peters%2C+MO+63376" target="_blank" rel="noopener">Directions &rarr;</a></div></div>
+</article>
+  </div>
+</div></section>
+<section class="section bg-cream" id="tours"><div class="container">
+  <div class="center reveal"><span class="eyebrow">Plan a visit</span><h2>Three self-guided tours</h2><div class="bar"></div>
+  <p class="lead">Each tour groups nearby places so you can see several in one trip. Click a stop to find it on the map.</p></div>
+  <div class="ex-tours"><div class="ex-tour reveal"><span class="tag">Self-guided tour</span><h3>Confluence floodplain loop</h3><p>Half a day around West Alton and Portage des Sioux, where the big rivers spread out.</p><ol><li><a href="#confluence" data-focus="confluence">Confluence Point State Park</a></li><li><a href="#riverlands" data-focus="riverlands">Riverlands Migratory Bird Sanctuary &amp; Audubon Center</a></li><li><a href="#marais" data-focus="marais">Marais Temps Clair Conservation Area</a></li></ol></div><div class="ex-tour reveal"><span class="tag">Self-guided tour</span><h3>Busch, Weldon Spring &amp; the Missouri River</h3><p>A day of forest, prairie and river bottom on the County&rsquo;s south side, plus a paddle on Dardenne Creek another day.</p><ol><li><a href="#busch" data-focus="busch">August A. Busch Memorial Conservation Area</a></li><li><a href="#weldon" data-focus="weldon">Weldon Spring Conservation Area &amp; Katy Trail</a></li><li><a href="#howell" data-focus="howell">Howell Island Conservation Area</a></li><li><a href="#dardenne" data-focus="dardenne">Dardenne Creek &amp; the Dardenne Creek Blueway</a></li></ol></div><div class="ex-tour reveal"><span class="tag">Self-guided tour</span><h3>Green infrastructure in town</h3><p>Neighborhood-scale stormwater work you can walk right up to.</p><ol><li><a href="#newtown" data-focus="newtown">New Town at St. Charles</a></li><li><a href="#heartland" data-focus="heartland">Heartland Park &amp; Heartland Lake</a></li><li><a href="#lec" data-focus="lec">Wentzville Law Enforcement Center basin retrofit</a></li></ol></div></div>
+  <p class="ex-disclaimer">These sites are owned and managed by the agencies and cities listed. Including a site here doesn&rsquo;t imply a partnership or endorsement. Check each site&rsquo;s own page for hours, closures and rules before you go.</p>
+</div></section>
+<section class="next-step"><div class="container"><h2>Want to help make more places like these?</h2><a class="btn" href="get-involved.html">Get involved &rarr;</a></div></section>
+</main>
+<footer class="site-footer">
+  <div class="wave top"><svg viewBox="0 0 1440 70" preserveAspectRatio="none"><path fill="#ffffff" d="M0,40 C240,80 480,0 720,30 C960,60 1200,10 1440,35 L1440,70 L0,70 Z"></path></svg></div>
+  <div class="container footer-grid">
+    <div>
+      <div class="footer-brand"><img src="images/logo.png" alt="SCWA logo"><span>St. Charles<br>Watersheds Alliance</span></div>
+      <p>A non-profit dedicated to advocating for proactive stormwater runoff management and habitat conservation in all of St. Charles County and its municipalities.</p>
+    </div>
+    <div>
+      <h4>Contact</h4>
+      <ul>
+        <li>T: <a href="tel:+14173809474">417-380-9474</a></li>
+        <li>E: <a href="mailto:stcharleswatershedsalliance@gmail.com">stcharleswatershedsalliance@gmail.com</a></li>
+        <!-- Add SCWA's Facebook page here when you have the link:
+        <li><a href="https://www.facebook.com/YOUR-PAGE">Facebook</a></li> -->
+      </ul>
+      <h4 style="margin-top:1.6em">Explore</h4>
+      <ul><li><a href="about.html">About</a></li><li><a href="projects.html">Projects</a></li><li><a href="explore.html">Explore</a></li><li><a href="resources.html">Resources</a></li><li><a href="events.html">Events &amp; News</a></li><li><a href="get-involved.html">Get Involved</a></li></ul>
+    </div>
+    <div>
+      <h4>Subscribe to Our Newsletter</h4>
+      <form class="web3 inline-form" data-thanks="Thanks for subscribing!" aria-label="Newsletter signup">
+  <input type="hidden" name="access_key" value="b8f614bc-b5f6-4c8a-a554-1fa8eed5e666">
+  <input type="hidden" name="subject" value="New SCWA newsletter subscriber">
+  <input type="hidden" name="from_name" value="SCWA website">
+  <input type="checkbox" name="botcheck" class="hp" tabindex="-1" autocomplete="off">
+  <label for="footer-email" class="hp">Email</label>
+  <input id="footer-email" type="email" name="email" placeholder="Enter your email here" required>
+  <button class="btn yellow" type="submit">Subscribe Now</button>
+  <p class="form-msg" role="status"></p>
+</form>
+      <p style="margin-top:1.2em"><a class="btn ghost" href="get-involved.html#sponsor">Become a Sponsor</a></p>
+    </div>
+  </div>
+  <div class="container"><div class="footer-partners">
+    <h4>Proudly supported by our partners</h4>
+    <div class="logo-strip">
+  <a href="http://www.stormwaterdynamicsolutions.com" target="_blank" rel="noopener"><img src="images/partners/stormwater-dynamic-solutions.png" alt="Stormwater Dynamic Solutions"></a>
+  <a href="https://landscapetechnologies.net/index.html" target="_blank" rel="noopener"><img src="images/partners/landscape-technologies.png" alt="Landscape Technologies"></a>
+  <a href="https://hanesgeo.com/" target="_blank" rel="noopener"><img src="images/partners/hanes-geo.png" alt="Hanes Geo Components"></a>
+</div>
+  </div></div>
+  <div class="footer-bottom">&copy; <span class="year">2026</span> St. Charles Watersheds Alliance. All rights reserved.</div>
+</footer>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+<script src="js/main.js"></script>
+<script src="js/explore.js"></script>
+
+</body>
+</html>
