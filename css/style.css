@@ -344,3 +344,13 @@ input:focus, textarea:focus, select:focus { outline: none; border-color: var(--b
 .dot.b-habitat { background: var(--green-deep); }
 .dot.b-rec { background: var(--yellow); box-shadow: inset 0 0 0 1.5px #c4b443; }
 .dot.b-heat { background: #e07b39; }
+
+/* More free data (resources page) */
+.more-data { margin-top: 70px; }
+.data-groups { display: block; margin-top: 34px; columns: 2; column-gap: 34px; }
+.data-group { break-inside: avoid; margin-bottom: 34px; }
+.data-group .doc { flex-wrap: nowrap; }
+.data-group .doc .more { white-space: nowrap; }
+@media (max-width: 860px) { .data-groups { columns: 1; } .data-group .doc { flex-wrap: wrap; } }
+.data-group-title { font-size: 1.15rem; text-transform: uppercase; letter-spacing: .08em; color: var(--green-deep); margin: 0 0 14px; }
+.data-group .doc .tag { margin-bottom: 6px; background: var(--yellow); }
