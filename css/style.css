@@ -354,3 +354,10 @@ input:focus, textarea:focus, select:focus { outline: none; border-color: var(--b
 @media (max-width: 860px) { .data-groups { columns: 1; } .data-group .doc { flex-wrap: wrap; } }
 .data-group-title { font-size: 1.15rem; text-transform: uppercase; letter-spacing: .08em; color: var(--green-deep); margin: 0 0 14px; }
 .data-group .doc .tag { margin-bottom: 6px; background: var(--yellow); }
+
+/* Before/after label on home card */
+.card .img.ba { position: relative; }
+.ba-label { position: absolute; top: 10px; font-family: var(--font-head); font-size: .78rem; letter-spacing: .12em; text-transform: uppercase; color: var(--white); background: rgba(15,13,85,.75); padding: 3px 10px; border-radius: 20px; }
+.ba-before { left: 10px; }
+.ba-after { right: 10px; }
+.ba-note { position: absolute; bottom: 8px; right: 10px; font-size: .7rem; color: var(--white); background: rgba(0,0,0,.45); padding: 1px 8px; border-radius: 10px; }
