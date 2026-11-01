@@ -19,7 +19,7 @@ document.querySelectorAll(".year").forEach(function (el) { el.textContent = new 
     fig.addEventListener("click", function () {
       var src = fig.querySelector("img");
       img.src = src.src; img.alt = src.alt;
-      cap.textContent = fig.querySelector("figcaption").textContent;
+      var fc = fig.querySelector("figcaption"); cap.textContent = fc.querySelector("strong") ? fc.querySelector("strong").textContent + " — " + fc.querySelector("span").textContent : fc.textContent;
       box.classList.add("open");
     });
   });

@@ -1,10 +1,10 @@
 /* Self-hosted fonts (no Google dependency) */
-@font-face{font-family:"Oswald";src:url("oswald-latin-400-normal.woff2") format("woff2");font-weight:400;font-style:normal;font-display:swap}
-@font-face{font-family:"Oswald";src:url("oswald-latin-500-normal.woff2") format("woff2");font-weight:500;font-style:normal;font-display:swap}
-@font-face{font-family:"Oswald";src:url("oswald-latin-600-normal.woff2") format("woff2");font-weight:600;font-style:normal;font-display:swap}
-@font-face{font-family:"Jost";src:url("jost-latin-400-normal.woff2") format("woff2");font-weight:400;font-style:normal;font-display:swap}
-@font-face{font-family:"Jost";src:url("jost-latin-500-normal.woff2") format("woff2");font-weight:500;font-style:normal;font-display:swap}
-@font-face{font-family:"Jost";src:url("jost-latin-600-normal.woff2") format("woff2");font-weight:600;font-style:normal;font-display:swap}
+@font-face{font-family:"Oswald";src:url("../fonts/oswald-latin-400-normal.woff2") format("woff2");font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:"Oswald";src:url("../fonts/oswald-latin-500-normal.woff2") format("woff2");font-weight:500;font-style:normal;font-display:swap}
+@font-face{font-family:"Oswald";src:url("../fonts/oswald-latin-600-normal.woff2") format("woff2");font-weight:600;font-style:normal;font-display:swap}
+@font-face{font-family:"Jost";src:url("../fonts/jost-latin-400-normal.woff2") format("woff2");font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:"Jost";src:url("../fonts/jost-latin-500-normal.woff2") format("woff2");font-weight:500;font-style:normal;font-display:swap}
+@font-face{font-family:"Jost";src:url("../fonts/jost-latin-600-normal.woff2") format("woff2");font-weight:600;font-style:normal;font-display:swap}
 
 /* =========================================================
    St. Charles Watersheds Alliance — site styles
@@ -98,7 +98,7 @@ p { margin: 0 0 1em; }
 
 /* Home hero */
 .hero { position: relative; min-height: 92vh; display: flex; align-items: center; color: var(--white); overflow: hidden; background: var(--navy); }
-.hero-bg { position: absolute; inset: -40px 0 0 0; background: url("hero.jpg") center/cover no-repeat; transform: scale(1.06); animation: slowzoom 22s ease-in-out infinite alternate; }
+.hero-bg { position: absolute; inset: -40px 0 0 0; background: url("../images/hero.jpg") center/cover no-repeat; transform: scale(1.06); animation: slowzoom 22s ease-in-out infinite alternate; }
 @keyframes slowzoom { to { transform: scale(1.14) translateY(-10px); } }
 .hero::before { content: ""; position: absolute; inset: 0; z-index: 1; background: linear-gradient(100deg, rgba(15,13,85,.9) 0%, rgba(24,21,124,.6) 45%, rgba(24,21,124,.05) 100%); }
 .hero .container { position: relative; z-index: 3; width: 100%; padding-top: 70px; padding-bottom: 150px; }
@@ -300,7 +300,18 @@ input:focus, textarea:focus, select:focus { outline: none; border-color: var(--b
 .reveal.d1 { transition-delay: .12s; } .reveal.d2 { transition-delay: .24s; } .reveal.d3 { transition-delay: .36s; }
 @media (prefers-reduced-motion: reduce) { .reveal { opacity: 1; transform: none; } .hero-bg, .badge, .photo-stack .logo-float { animation: none; } }
 @media (max-width: 520px) { .tile { min-height: 190px; padding: 24px 22px; } .tiles { margin-top: -80px; } }
-
+.hero-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
+.hero-bg { z-index: 0; }
+.brand img { filter: drop-shadow(0 2px 4px rgba(0,0,0,.15)); }
+/* Hero video: mirrored so the flowers sit on the right, away from the headline */
+.hero-video { transform: scaleX(-1); object-position: center 60%; }
+.hero.has-video::before { background: linear-gradient(100deg, rgba(15,13,85,.85) 0%, rgba(24,21,124,.5) 42%, rgba(24,21,124,0) 75%); }
+/* Projects gallery: captions appear on hover, like the original site */
+.gallery figcaption { opacity: 0; transform: translateY(12px); transition: opacity .35s, transform .35s; padding: 60px 20px 18px; background: linear-gradient(transparent, rgba(15,13,85,.92)); }
+.gallery figure:hover figcaption, .gallery figure:focus-within figcaption { opacity: 1; transform: none; }
+.gallery figcaption strong { display: block; font-family: var(--font-head); font-weight: 500; text-transform: uppercase; letter-spacing: .14em; font-size: 1.3rem; color: var(--yellow); }
+.gallery figcaption span { display: block; font-family: var(--font-body); font-size: .95rem; letter-spacing: 0; line-height: 1.4; margin-top: 4px; }
+@media (hover: none) { .gallery figcaption { opacity: 1; transform: none; } }
 /* =========================================================
    Data sections: "Where rainfall goes" (home) and
    "Primary benefits by type" (resources)
