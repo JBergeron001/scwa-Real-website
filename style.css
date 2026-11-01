@@ -1,10 +1,10 @@
 /* Self-hosted fonts (no Google dependency) */
-@font-face{font-family:"Oswald";src:url("../fonts/oswald-latin-400-normal.woff2") format("woff2");font-weight:400;font-style:normal;font-display:swap}
-@font-face{font-family:"Oswald";src:url("../fonts/oswald-latin-500-normal.woff2") format("woff2");font-weight:500;font-style:normal;font-display:swap}
-@font-face{font-family:"Oswald";src:url("../fonts/oswald-latin-600-normal.woff2") format("woff2");font-weight:600;font-style:normal;font-display:swap}
-@font-face{font-family:"Jost";src:url("../fonts/jost-latin-400-normal.woff2") format("woff2");font-weight:400;font-style:normal;font-display:swap}
-@font-face{font-family:"Jost";src:url("../fonts/jost-latin-500-normal.woff2") format("woff2");font-weight:500;font-style:normal;font-display:swap}
-@font-face{font-family:"Jost";src:url("../fonts/jost-latin-600-normal.woff2") format("woff2");font-weight:600;font-style:normal;font-display:swap}
+@font-face{font-family:"Oswald";src:url("oswald-latin-400-normal.woff2") format("woff2");font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:"Oswald";src:url("oswald-latin-500-normal.woff2") format("woff2");font-weight:500;font-style:normal;font-display:swap}
+@font-face{font-family:"Oswald";src:url("oswald-latin-600-normal.woff2") format("woff2");font-weight:600;font-style:normal;font-display:swap}
+@font-face{font-family:"Jost";src:url("jost-latin-400-normal.woff2") format("woff2");font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:"Jost";src:url("jost-latin-500-normal.woff2") format("woff2");font-weight:500;font-style:normal;font-display:swap}
+@font-face{font-family:"Jost";src:url("jost-latin-600-normal.woff2") format("woff2");font-weight:600;font-style:normal;font-display:swap}
 
 /* =========================================================
    St. Charles Watersheds Alliance — site styles
@@ -98,7 +98,7 @@ p { margin: 0 0 1em; }
 
 /* Home hero */
 .hero { position: relative; min-height: 92vh; display: flex; align-items: center; color: var(--white); overflow: hidden; background: var(--navy); }
-.hero-bg { position: absolute; inset: -40px 0 0 0; background: url("../images/hero.jpg") center/cover no-repeat; transform: scale(1.06); animation: slowzoom 22s ease-in-out infinite alternate; }
+.hero-bg { position: absolute; inset: -40px 0 0 0; background: url("hero.jpg") center/cover no-repeat; transform: scale(1.06); animation: slowzoom 22s ease-in-out infinite alternate; }
 @keyframes slowzoom { to { transform: scale(1.14) translateY(-10px); } }
 .hero::before { content: ""; position: absolute; inset: 0; z-index: 1; background: linear-gradient(100deg, rgba(15,13,85,.9) 0%, rgba(24,21,124,.6) 45%, rgba(24,21,124,.05) 100%); }
 .hero .container { position: relative; z-index: 3; width: 100%; padding-top: 70px; padding-bottom: 150px; }
@@ -300,3 +300,36 @@ input:focus, textarea:focus, select:focus { outline: none; border-color: var(--b
 .reveal.d1 { transition-delay: .12s; } .reveal.d2 { transition-delay: .24s; } .reveal.d3 { transition-delay: .36s; }
 @media (prefers-reduced-motion: reduce) { .reveal { opacity: 1; transform: none; } .hero-bg, .badge, .photo-stack .logo-float { animation: none; } }
 @media (max-width: 520px) { .tile { min-height: 190px; padding: 24px 22px; } .tiles { margin-top: -80px; } }
+
+/* =========================================================
+   Data sections: "Where rainfall goes" (home) and
+   "Primary benefits by type" (resources)
+   ========================================================= */
+.rain-split { align-items: center; }
+.chart-card { margin: 0; background: var(--white); border-radius: var(--radius); box-shadow: var(--shadow); padding: 24px 24px 18px; }
+.chart-card svg { width: 100%; height: auto; display: block; }
+.chart-card svg .t { fill: var(--muted); font: 13px var(--font-body); }
+.chart-card svg .v { fill: #fff; font: 600 13px var(--font-body); }
+.chart-card svg .v.dk { fill: var(--navy); }
+.chart-card figcaption { font-size: .85rem; color: var(--muted); margin-top: 10px; line-height: 1.5; }
+.chart-key { list-style: none; margin: 0 0 12px; padding: 0; display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: .9rem; color: var(--muted); }
+.chart-key li { display: inline-flex; align-items: center; gap: 7px; }
+.chart-key i { width: 13px; height: 13px; border-radius: 3px; display: inline-block; }
+
+.matrix-wrap { margin-top: 34px; overflow-x: auto; background: var(--white); border-radius: var(--radius); box-shadow: var(--shadow); }
+.matrix { border-collapse: collapse; width: 100%; min-width: 700px; font-size: .95rem; line-height: 1.35; }
+.matrix th, .matrix td { padding: 10px 12px; border-bottom: 1px solid #e6e8ef; text-align: center; vertical-align: middle; }
+.matrix thead th { font-family: var(--font-head); font-weight: 500; font-size: .82rem; letter-spacing: .08em; text-transform: uppercase; color: var(--navy); background: var(--white); }
+.matrix thead th .dot { display: block; margin: 0 auto 6px; }
+.matrix thead th:first-child { text-align: left; }
+.matrix tbody th { text-align: left; font-weight: 500; color: var(--text); position: sticky; left: 0; background: var(--white); }
+.matrix tbody th .scale { display: block; font-size: .78rem; color: var(--green-deep); }
+.matrix tr.grp th { background: var(--green); color: var(--navy); font-family: var(--font-head); font-weight: 500; font-size: .85rem; letter-spacing: .12em; text-transform: uppercase; }
+.matrix tbody tr:not(.grp):hover th, .matrix tbody tr:not(.grp):hover td { background: var(--cream); }
+.dot { display: inline-block; width: 14px; height: 14px; border-radius: 50%; }
+.dot.off { border: 1.5px solid #cdd1dc; }
+.dot.b-flood { background: var(--navy); }
+.dot.b-water { background: var(--blue); }
+.dot.b-habitat { background: var(--green-deep); }
+.dot.b-rec { background: var(--yellow); box-shadow: inset 0 0 0 1.5px #c4b443; }
+.dot.b-heat { background: #e07b39; }
