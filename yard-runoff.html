@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>My yard's runoff</title>
+<meta name="robots" content="noindex">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+@font-face{font-family:"Oswald";src:url("fonts/oswald-latin-500-normal.woff2") format("woff2");font-weight:500;font-display:swap}
+@font-face{font-family:"Jost";src:url("fonts/jost-latin-400-normal.woff2") format("woff2");font-weight:400;font-display:swap}
+@font-face{font-family:"Jost";src:url("fonts/jost-latin-500-normal.woff2") format("woff2");font-weight:500;font-display:swap}
+:root{--navy:#18157c;--green:#acd5a1;--green-deep:#5f9e52;--cream:#f7f8f2;--text:#24233a;--muted:#5b5d72;--line:#e3e6dc;--roof:#e8553e;--drive:#f2b51f;--patio:#9b59b6;--water:#1e7fd8;--head:"Oswald","Arial Narrow",Arial,sans-serif;--body:"Jost","Segoe UI",Arial,sans-serif}
+*{box-sizing:border-box;min-width:0}
+html,body{margin:0;height:100%;background:transparent;color:var(--text);font:15px/1.5 var(--body)}
+.app{height:100%;display:grid;grid-template-columns:300px minmax(0,1fr) 320px;background:#fff;border-radius:12px;box-shadow:0 10px 30px rgba(24,21,124,.12);overflow:hidden}
+.panel{padding:16px;overflow:auto}
+.panel h4{margin:0 0 6px;font:500 13px var(--head);text-transform:uppercase;letter-spacing:.08em;color:var(--navy)}
+.step{margin-bottom:16px}
+.step p{margin:0 0 8px;font-size:13.5px;color:var(--muted)}
+.find{display:flex;gap:6px}
+.find input{flex:1;font:16px var(--body);min-height:40px;padding:0 10px;border:2px solid var(--navy);border-radius:8px}
+button{font:500 13px var(--head);text-transform:uppercase;letter-spacing:.06em;min-height:40px;padding:0 14px;border-radius:20px;border:2px solid var(--navy);background:#fff;color:var(--navy);cursor:pointer}
+button.solid{background:var(--navy);color:#fff}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--green-deep);outline-offset:2px}
+.tools{display:grid;grid-template-columns:1fr;gap:6px}
+.tools button{display:flex;align-items:center;gap:8px;justify-content:flex-start;border-radius:8px}
+.tools button i{width:14px;height:14px;border-radius:3px;background:var(--c)}
+.tools button[aria-pressed=true]{background:var(--navy);color:#fff}
+.drawbar{display:none;gap:6px;margin-top:8px}.drawing .drawbar{display:flex}
+.msg{font-size:12.5px;color:var(--navy);min-height:18px;margin:6px 0 0}
+.shapes{list-style:none;margin:0;padding:0;font-size:13.5px}
+.shapes li{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--line)}
+.shapes li i{width:12px;height:12px;border-radius:3px;background:var(--c);flex:none}
+.shapes li span{flex:1}.shapes li b{font-weight:500;white-space:nowrap}
+.shapes li button{min-height:28px;padding:0 8px;border:0;font-size:16px;color:var(--muted)}
+.manual{font-size:13px}.manual summary{cursor:pointer;color:var(--navy);font-weight:500}
+.manual label{display:grid;grid-template-columns:1fr 110px;align-items:center;gap:8px;margin-top:6px}
+.manual input{font:15px var(--body);min-height:34px;padding:0 8px;border:1px solid var(--line);border-radius:6px;width:100%}
+#map{height:100%;min-height:320px;background:#d9e3ea}
+.leaflet-container{font:12px var(--body)}
+.res .big{font:500 40px/1 var(--head);color:var(--water);margin:4px 0 2px}
+.res .sub{font-size:13px;color:var(--muted);margin:0}
+.res .row{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;margin-top:10px}
+.res label{font-size:14px}
+.res select,.res input[type=range]{width:100%;accent-color:var(--navy)}
+.res select{font:15px var(--body);min-height:34px;border:1px solid var(--line);border-radius:6px;padding:0 6px}
+.bar{height:16px;border-radius:8px;background:#e8eef4;overflow:hidden;display:flex;margin-top:8px}
+.bar span{display:block;height:100%}
+.legend{display:flex;gap:12px;font-size:12px;color:var(--muted);margin-top:4px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:4px;vertical-align:-1px}
+.kept{font:500 22px var(--head);color:var(--green-deep)}
+.note{font-size:12px;color:var(--muted);margin-top:12px;line-height:1.4}
+.note a{color:var(--navy)}
+hr{border:0;border-top:1px solid var(--line);margin:14px 0}
+@media(max-width:980px){.app{grid-template-columns:1fr;grid-template-rows:auto 380px auto;height:auto;overflow:visible}.panel{overflow:visible}}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+ <section class="panel" aria-label="Your lot">
+  <div class="step"><h4>1. Find your home</h4><form class="find" id="find"><input id="q" type="search" placeholder="Street address" aria-label="Street address" autocomplete="street-address"><button class="solid" type="submit">Go</button></form><p class="msg" id="fmsg" role="status"></p></div>
+  <div class="step" id="drawstep"><h4>2. Trace your hard surfaces</h4><p>Pick a surface, then click around its corners on the photo. Click the first corner again, or press Finish, to close it.</p>
+   <div class="tools"><button type="button" data-t="roof" style="--c:var(--roof)"><i></i>Roof</button><button type="button" data-t="drive" style="--c:var(--drive)"><i></i>Driveway &amp; walks</button><button type="button" data-t="patio" style="--c:var(--patio)"><i></i>Patio or other paving</button></div>
+   <div class="drawbar"><button type="button" class="solid" id="finish">Finish</button><button type="button" id="undo">Undo point</button><button type="button" id="cancel">Cancel</button></div>
+   <p class="msg" id="dmsg" role="status"></p></div>
+  <div class="step"><ul class="shapes" id="shapes"></ul></div>
+  <details class="manual" id="manual"><summary>Or type in square feet</summary>
+   <label>Roof<input type="number" min="0" step="10" id="m-roof" inputmode="numeric"></label>
+   <label>Driveway &amp; walks<input type="number" min="0" step="10" id="m-drive" inputmode="numeric"></label>
+   <label>Patio or other<input type="number" min="0" step="10" id="m-patio" inputmode="numeric"></label></details>
+ </section>
+ <div id="map" role="application" aria-label="Aerial photo for tracing your roof and paving"></div>
+ <section class="panel res" aria-label="Results" aria-live="polite">
+  <h4>3. Your runoff</h4>
+  <div class="row"><label for="storm">Storm size</label><select id="storm"><option value="0.5">Light rain, 0.5 in</option><option value="1" selected>Typical storm, 1 in</option><option value="2">Heavy storm, 2 in</option><option value="3">Big storm, 3 in</option><option value="4.5">Severe storm, 4.5 in</option></select></div>
+  <div class="big" id="gal">0 gal</div>
+  <p class="sub" id="galsub">Trace your roof and driveway to see how much water leaves your lot.</p>
+  <p class="sub" id="year"></p>
+  <hr>
+  <h4>4. Keep it on your lot</h4>
+  <div class="row"><label for="barrels">Rain barrels (55 gallons each)</label><select id="barrels"><option>0</option><option>1</option><option>2</option><option>3</option><option>4</option></select></div>
+  <div class="row"><label for="garden">Rain garden size</label><output id="gardenv">0 sq ft</output></div>
+  <input type="range" id="garden" min="0" max="600" step="10" value="0" aria-label="Rain garden size in square feet">
+  <p class="sub" id="gardenhint"></p>
+  <div class="row"><label for="pavers">Replace driveway with permeable pavers</label><input type="checkbox" id="pavers" style="width:22px;height:22px;accent-color:var(--navy)"></div>
+  <div class="bar" aria-hidden="true"><span id="b-kept" style="background:var(--green-deep)"></span><span id="b-run" style="background:var(--water)"></span></div>
+  <div class="legend"><span><i style="background:var(--green-deep)"></i>Kept on your lot</span><span><i style="background:var(--water)"></i>Runs to the storm drain</span></div>
+  <div class="row"><span>Kept from this storm</span><span class="kept" id="kept">0%</span></div>
+  <p class="note">Estimates assume about 95% of rain on roofs and 90% on paving runs off, and about 42 inches of rain in a typical St. Louis area year. A rain garden ponds about 6 inches deep, holding about 3.7 gallons per square foot each storm. Find plants in our <a href="resources.html#native-plants" target="_top">native plant finder</a>. Imagery © Esri, Maxar, Earthstar Geographics.</p>
+ </section>
+</div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+{
+const COL={roof:'#e8553e',drive:'#f2b51f',patio:'#9b59b6'},NAME={roof:'Roof',drive:'Driveway & walks',patio:'Patio or other paving'},CR={roof:.95,drive:.9,patio:.9};
+const GPF=7.48/12;// gallons per square foot per inch of rain
+const map=L.map('map',{zoomControl:true,maxZoom:21}).setView([38.78,-90.62],12);
+L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxNativeZoom:19,maxZoom:21,attribution:'Imagery © Esri, Maxar, Earthstar Geographics'}).addTo(map);
+const app=document.getElementById('app'),dmsg=document.getElementById('dmsg');
+let tool=null,pts=[],temp=null,tempLine=null,shapes=[],sid=0;
+// ---- area (square feet) from lat/lon points
+function sqft(ll){const R=6371008.8,lat0=ll.reduce((a,p)=>a+p.lat,0)/ll.length*Math.PI/180;let a=0;
+ for(let i=0;i<ll.length;i++){const p=ll[i],q=ll[(i+1)%ll.length];const x1=p.lng*Math.PI/180*R*Math.cos(lat0),y1=p.lat*Math.PI/180*R,x2=q.lng*Math.PI/180*R*Math.cos(lat0),y2=q.lat*Math.PI/180*R;a+=x1*y2-x2*y1}
+ return Math.abs(a)/2*10.7639}
+const fmt=n=>Math.round(n).toLocaleString();
+// ---- drawing
+function setTool(t){tool=t;pts=[];clearTemp();document.querySelectorAll('.tools button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.t===t));
+ app.classList.toggle('drawing',!!t);document.getElementById('drawstep').classList.toggle('drawing',!!t);
+ map.doubleClickZoom[t?'disable':'enable']();map.getContainer().style.cursor=t?'crosshair':'';
+ dmsg.textContent=t?`Click the corners of your ${NAME[t].toLowerCase()}.`:''}
+function clearTemp(){if(temp)map.removeLayer(temp);if(tempLine)map.removeLayer(tempLine);temp=tempLine=null}
+function drawTemp(){clearTemp();if(!pts.length)return;temp=L.polyline(pts,{color:COL[tool],weight:3,dashArray:'4 4'}).addTo(map);
+ tempLine=L.layerGroup(pts.map((p,i)=>L.circleMarker(p,{radius:i?4:6,color:'#fff',weight:2,fillColor:COL[tool],fillOpacity:1}))).addTo(map)}
+map.on('click',e=>{if(!tool)return;
+ if(pts.length>=3){const f=map.latLngToContainerPoint(pts[0]),c=map.latLngToContainerPoint(e.latlng);if(f.distanceTo(c)<14){finish();return}}
+ pts.push(e.latlng);drawTemp();dmsg.textContent=pts.length<3?'Keep clicking corners.':'Click the first corner or press Finish to close the shape.'});
+map.on('dblclick',()=>{if(tool&&pts.length>=3)finish()});
+function finish(){if(pts.length<3){dmsg.textContent='A shape needs at least three corners.';return}
+ const t=tool,area=sqft(pts),poly=L.polygon(pts,{color:COL[t],weight:2,fillColor:COL[t],fillOpacity:.35}).addTo(map);
+ const s={id:++sid,t,area,poly};shapes.push(s);poly.bindTooltip(`${NAME[t]}: ${fmt(area)} sq ft`);setTool(null);dmsg.textContent=`Added ${fmt(area)} sq ft of ${NAME[t].toLowerCase()}.`;listShapes();calc()}
+document.querySelectorAll('.tools button').forEach(b=>b.addEventListener('click',()=>setTool(tool===b.dataset.t?null:b.dataset.t)));
+document.getElementById('finish').addEventListener('click',finish);
+document.getElementById('undo').addEventListener('click',()=>{pts.pop();drawTemp()});
+document.getElementById('cancel').addEventListener('click',()=>setTool(null));
+function listShapes(){const ul=document.getElementById('shapes');ul.innerHTML='';
+ for(const s of shapes){const li=document.createElement('li');li.style.setProperty('--c',COL[s.t]);
+  const i=document.createElement('i'),sp=document.createElement('span'),b=document.createElement('b'),x=document.createElement('button');
+  sp.textContent=NAME[s.t];b.textContent=fmt(s.area)+' sq ft';x.type='button';x.textContent='×';x.setAttribute('aria-label','Remove '+NAME[s.t]);
+  x.addEventListener('click',()=>{map.removeLayer(s.poly);shapes=shapes.filter(q=>q!==s);listShapes();calc()});li.append(i,sp,b,x);ul.appendChild(li)}}
+// ---- address search
+const GEO='https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/findAddressCandidates';
+const EXT=JSON.stringify({xmin:-91.35,ymin:38.35,xmax:-89.95,ymax:39.15,spatialReference:{wkid:4326}});
+document.getElementById('find').addEventListener('submit',async ev=>{ev.preventDefault();const q=document.getElementById('q').value.trim(),m=document.getElementById('fmsg');if(!q)return;m.textContent='Searching…';
+ try{const d=await (await fetch(GEO+'?f=json&maxLocations=1&forStorage=false&searchExtent='+encodeURIComponent(EXT)+'&SingleLine='+encodeURIComponent(q))).json(),c=d.candidates&&d.candidates[0];
+  if(!c||c.score<70){m.textContent='No match found. Try adding the city or ZIP code.';return}
+  map.setView([c.location.y,c.location.x],20);m.textContent=c.address+'. Now trace your roof.'}
+ catch(e){m.textContent='Address search is not available right now.'}});
+// ---- results
+const $=id=>document.getElementById(id);
+function areas(){const a={roof:0,drive:0,patio:0};for(const s of shapes)a[s.t]+=s.area;for(const k in a){const v=+$('m-'+k).value;if(v>0)a[k]+=v}return a}
+function calc(){const a=areas(),r=+$('storm').value,run={};for(const k in a)run[k]=a[k]*CR[k]*r*GPF;
+ const total=run.roof+run.drive+run.patio;
+ $('gal').textContent=fmt(total)+' gal';
+ $('galsub').textContent=total?`runs off your ${fmt(a.roof+a.drive+a.patio)} sq ft of roof and paving in this storm. That is about ${fmt(total/40)} bathtubs.`:'Trace your roof and driveway to see how much water leaves your lot.';
+ const yr=(a.roof*CR.roof+a.drive*CR.drive+a.patio*CR.patio)*42*GPF;$('year').textContent=yr?`In a typical year: about ${fmt(yr)} gallons.`:'';
+ // keep it on the lot: barrels take roof water first, the garden takes what is left of the roof water, pavers take the driveway
+ const barrels=+$('barrels').value*55,g=+$('garden').value,gcap=g*0.5*7.48;
+ const toBarrel=Math.min(run.roof,barrels),toGarden=Math.min(run.roof-toBarrel,gcap),pav=$('pavers').checked?run.drive:0,kept=toBarrel+toGarden+pav;
+ $('gardenv').textContent=g+' sq ft';
+ const suggest=Math.round(a.roof*0.5*CR.roof*r*GPF/(0.5*7.48)/10)*10;// size to hold half the roof's runoff from this storm
+ $('gardenhint').textContent=a.roof?`A rain garden of about ${fmt(Math.max(50,suggest))} sq ft would hold the water from half your roof in this storm.`:'';
+ const pct=total?Math.min(100,kept/total*100):0;$('kept').textContent=Math.round(pct)+'%';$('b-kept').style.width=pct+'%';$('b-run').style.width=(total?100-pct:0)+'%'}
+['storm','barrels','garden','pavers','m-roof','m-drive','m-patio'].forEach(id=>$(id).addEventListener('input',calc));
+calc();
+}
+</script>
+</body>
+</html>
