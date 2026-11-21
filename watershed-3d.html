@@ -35,7 +35,14 @@ html,body{margin:0;height:100%;background:transparent;color:var(--text);font:15p
 .key li{display:flex;align-items:center;gap:5px}.key i{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--dot);border:1.5px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.15)}
 .key svg{width:11px;height:13px}
 .lab.city{font:500 11px/1.1 var(--head);text-transform:uppercase;letter-spacing:.06em;color:#fff;background:#b3206f}
-.hint{position:absolute;left:12px;bottom:8px;font-size:12px;color:var(--muted);pointer-events:none}
+.fsb{position:absolute;left:10px;bottom:8px;z-index:2;display:flex;align-items:center;gap:6px;font:500 12px var(--head);text-transform:uppercase;letter-spacing:.06em;min-height:34px;padding:0 12px;border-radius:18px;border:2px solid var(--navy);background:rgba(255,255,255,.92);color:var(--navy);cursor:pointer}
+.fsb svg,.back svg{width:15px;height:15px}
+.back{position:absolute;left:12px;top:10px;z-index:3;display:none;align-items:center;gap:6px;font:500 14px var(--head);text-transform:uppercase;letter-spacing:.06em;min-height:42px;padding:0 16px 0 12px;border-radius:21px;border:0;background:var(--navy);color:#fff;cursor:pointer;box-shadow:0 4px 12px rgba(24,21,124,.25)}
+.fsb:focus-visible,.back:focus-visible{outline:3px solid var(--green-deep);outline-offset:2px}
+.card.fs{position:fixed;inset:0;width:100vw;height:100vh;height:100dvh;border-radius:0;z-index:50}
+.card.fs .back{display:flex}.card.fs .fsb{display:none}.card.fs .info{top:62px}.card.fs .hint{left:12px}
+.card:fullscreen{width:100vw;height:100vh;border-radius:0}
+.hint{position:absolute;left:150px;bottom:16px;font-size:12px;color:var(--muted);pointer-events:none}
 .load{position:absolute;inset:0;display:grid;place-items:center;color:var(--muted)}
 .controls{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;padding:10px 12px 6px;border-top:1px solid var(--line)}
 .ex{display:flex;align-items:center;gap:10px;flex:1 1 230px}
@@ -64,7 +71,7 @@ input[type=range]{flex:1;accent-color:var(--navy);height:36px}
 </style>
 </head>
 <body>
-<div class="card"><div class="stage" id="stage"><div class="cap">Our watersheds in 3D<small>Drag to turn · click a watershed to open it</small></div><div class="info" id="info" aria-live="polite"><h3 id="iname"></h3><p id="idesc"></p></div><button class="reset" id="reset" type="button"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 8a5 5 0 1 0 1.5-3.6"/><path d="M3 2.5V5h2.5"/></svg>Full county</button><div class="tip" id="tip"></div><div class="load" id="load">Building terrain…</div><div class="hint" id="hint">Click to enable zoom</div></div>
+<div class="card"><div class="stage" id="stage"><div class="cap">Our watersheds in 3D<small>Drag to turn · click a watershed to open it</small></div><div class="info" id="info" aria-live="polite"><h3 id="iname"></h3><p id="idesc"></p></div><button class="reset" id="reset" type="button"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 8a5 5 0 1 0 1.5-3.6"/><path d="M3 2.5V5h2.5"/></svg>Full county</button><div class="tip" id="tip"></div><div class="load" id="load">Building terrain…</div><button class="fsb" id="fsb" type="button" aria-label="Full screen"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M1.5 5.5v-4h4M10.5 1.5h4v4M14.5 10.5v4h-4M5.5 14.5h-4v-4"/></svg>Full screen</button><button class="back" id="back" type="button"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M10 2.5 4.5 8l5.5 5.5"/></svg>Back</button><div class="hint" id="hint">Click to enable zoom</div></div>
 <div class="controls">
 <div class="ex"><label for="ex">Height</label><input id="ex" type="range" min="1" max="80" step="1" value="38"><output id="exv">38×</output></div>
 <div class="pick"><label for="shed">Watershed</label><select id="shed"><option value="0">Whole county</option></select></div>
@@ -244,7 +251,7 @@ async function openShed(id){if(busy)return;busy=true;const s=DATA.sheds[id-1];
 function showCounty(){if(cur===county)return;scene.remove(shedT.group);shedT.dispose();shedT=null;cur=county;county.group.visible=true;
  st.ex=countyEx;setEx();placeCloud(county);stage.classList.remove('view-shed');sel.value=0;touched=false;flyTo(county,1000)}
 resetBtn.addEventListener('click',showCounty);
-addEventListener('keydown',e=>{if(e.key==='Escape')showCounty()});
+addEventListener('keydown',e=>{if(e.key!=='Escape')return;if(card.classList.contains('fs')&&!fsEl()&&!pageMode){setFs(false);return}showCounty()});
 
 // ---------- hover and click on the county ----------
 const ray=new THREE.Raycaster(),ndc=new THREE.Vector2(),pl=new THREE.Plane(new THREE.Vector3(0,1,0),0),hitP=new THREE.Vector3();
@@ -270,6 +277,20 @@ function showTip(e){const r=stage.getBoundingClientRect(),b=e.getBoundingClientR
 stage.addEventListener('pointerover',ev=>{const e=ev.target.closest('.mk');if(e)showTip(e)});
 stage.addEventListener('pointerout',ev=>{if(ev.target.closest('.mk'))tipTimer=setTimeout(()=>tip.style.display='none',150)});
 stage.addEventListener('click',ev=>{const e=ev.target.closest('.mk');if(e){showTip(e);tipTimer=setTimeout(()=>tip.style.display='none',2500)}});
+// ---------- full screen ----------
+const card=document.querySelector('.card'),fsb=document.getElementById('fsb'),backB=document.getElementById('back');
+const pageMode=new URLSearchParams(location.search).has('full');
+const fsEl=()=>document.fullscreenElement||document.webkitFullscreenElement;
+function setFs(on){card.classList.toggle('fs',on);requestAnimationFrame(size)}
+if(pageMode)setFs(true);
+fsb.addEventListener('click',()=>{const req=card.requestFullscreen||card.webkitRequestFullscreen;
+ const fallback=()=>{if(window.top!==window){try{window.top.location.href=location.pathname+'?full=1';return}catch(e){}}setFs(true)};
+ if(!req){fallback();return}
+ try{const r=req.call(card);if(r&&r.catch)r.catch(fallback)}catch(e){fallback()}});
+const onFs=()=>{setFs(!!fsEl()||pageMode)};
+document.addEventListener('fullscreenchange',onFs);document.addEventListener('webkitfullscreenchange',onFs);
+backB.addEventListener('click',()=>{if(fsEl()){(document.exitFullscreen||document.webkitExitFullscreen).call(document);return}
+ if(pageMode){if(history.length>1)history.back();else location.href='./';return}setFs(false)});
 // ---------- controls ----------
 const exI=document.getElementById('ex'),exO=document.getElementById('exv');
 function setEx(){exI.value=st.ex;exO.textContent=st.ex+'×';cur.applyEx(st.ex)}
