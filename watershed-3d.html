@@ -88,10 +88,23 @@ input[type=range]{flex:1;accent-color:var(--navy);height:36px}
 .info,.reset,.tip{z-index:2}
 .stage.view-shed .cap{display:none}.stage.view-shed .info{display:block}.stage.view-shed .reset{display:flex}
 .load{z-index:3;background:rgba(247,248,242,.6);font:500 15px var(--head);text-transform:uppercase;letter-spacing:.06em;color:var(--navy)}
+
+.info{padding:6px 10px 7px;max-width:min(64%,250px);border-radius:7px;box-shadow:0 2px 8px rgba(24,21,124,.14)}
+.info h3{font-size:14px;line-height:1.15;margin:0}
+.info p#idesc{font-size:11px;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.info .iaddr{font-size:11px;margin-top:2px}
+.info details{margin-top:3px}.info summary{font-size:10.5px}
+.info details[open]{max-height:none}
+.info .about{font-size:12px;line-height:1.4;margin-top:4px}
+.info .ilink{margin-top:6px}.info .ilink button{font-size:10.5px;min-height:28px;padding:0 10px}
+.info:has(details[open]){max-width:min(64%,330px)}
+.card.embedded:not(.fs) .info{left:58px}
+.card.fs .info{max-width:min(40%,330px)}
+@media(max-width:600px){.card.fs .info{max-width:none}}
 </style>
 </head>
 <body>
-<div class="card"><div class="stage" id="stage"><div class="cap">Our watersheds in 3D<small>Drag to turn · click a watershed to open it</small></div><div class="info" id="info" aria-live="polite"><h3 id="iname"></h3><p id="idesc"></p><p class="iaddr" id="iaddr" hidden></p><details id="idet"><summary>About this watershed</summary><p class="about" id="iabout"></p><p class="about note" id="inote" hidden></p></details><div class="ilink"><button type="button" id="copy">Copy link to this watershed</button><span id="copied" role="status"></span></div><input class="linkbox" id="linkbox" readonly hidden aria-label="Link to this watershed"></div><form class="find" id="find" role="search"><label for="q" class="vh">Find my watershed</label><input id="q" type="search" placeholder="Find my watershed: enter an address" autocomplete="street-address" enterkeyhint="search"><button type="submit">Find</button><p class="fmsg" id="fmsg" role="status"></p></form><button class="reset" id="reset" type="button"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 8a5 5 0 1 0 1.5-3.6"/><path d="M3 2.5V5h2.5"/></svg>Full county</button><div class="tip" id="tip"></div><div class="load" id="load">Building terrain…</div><button class="fsb" id="fsb" type="button" aria-label="Full screen"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M1.5 5.5v-4h4M10.5 1.5h4v4M14.5 10.5v4h-4M5.5 14.5h-4v-4"/></svg>Full screen</button><button class="back" id="back" type="button"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M10 2.5 4.5 8l5.5 5.5"/></svg>Back</button><div class="hint" id="hint">Click to enable zoom</div></div>
+<div class="card"><div class="stage" id="stage"><div class="cap">Our watersheds in 3D<small>Drag to turn · click a watershed to open it</small></div><div class="info" id="info" aria-live="polite"><h3 id="iname"></h3><p id="idesc"></p><p class="iaddr" id="iaddr" hidden></p><details id="idet"><summary>About &amp; share</summary><p class="about" id="iabout"></p><p class="about note" id="inote" hidden></p><div class="ilink"><button type="button" id="copy">Copy link to this watershed</button><span id="copied" role="status"></span></div><input class="linkbox" id="linkbox" readonly hidden aria-label="Link to this watershed"></details></div><form class="find" id="find" role="search"><label for="q" class="vh">Find my watershed</label><input id="q" type="search" placeholder="Find my watershed: enter an address" autocomplete="street-address" enterkeyhint="search"><button type="submit">Find</button><p class="fmsg" id="fmsg" role="status"></p></form><button class="reset" id="reset" type="button"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 8a5 5 0 1 0 1.5-3.6"/><path d="M3 2.5V5h2.5"/></svg>Full county</button><div class="tip" id="tip"></div><div class="load" id="load">Building terrain…</div><button class="fsb" id="fsb" type="button" aria-label="Full screen"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M1.5 5.5v-4h4M10.5 1.5h4v4M14.5 10.5v4h-4M5.5 14.5h-4v-4"/></svg>Full screen</button><button class="back" id="back" type="button"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M10 2.5 4.5 8l5.5 5.5"/></svg>Back</button><div class="hint" id="hint">Click to enable zoom</div></div>
 <div class="controls">
 <div class="ex"><label for="ex">Height</label><input id="ex" type="range" min="1" max="80" step="1" value="38"><output id="exv">38×</output></div>
 <div class="pick"><label for="shed">Watershed</label><select id="shed"><option value="0">Whole county</option></select></div>
@@ -267,12 +280,12 @@ async function openShed(id,opt={}){if(busy)return;busy=true;const s=DATA.sheds[i
   if(shedT){scene.remove(shedT.group);shedT.dispose()}
   shedT=T;cur=T;county.group.visible=false;county.labs.forEach(L=>L.e.style.display='none');scene.add(T.group);placeCloud(T);
   document.getElementById('iname').textContent=s[1];
-  document.getElementById('idesc').textContent=`${sqmi(s[2])} sq mi · ${ft(T.lo)} to ${ft(T.hi)} ft elevation · ${Math.round(s[5]*100)}% in St. Charles County`;
+  document.getElementById('idesc').textContent=`${sqmi(s[2])} sq mi · ${ft(T.lo)}–${ft(T.hi)} ft · ${Math.round(s[5]*100)}% in county`;
   const ia=document.getElementById('iaddr');ia.hidden=!opt.addr;if(opt.addr)ia.textContent='Your search: '+opt.addr;
   document.getElementById('iabout').textContent=D.about||'';
   if(!NOTES){try{NOTES=await (await fetch('watersheds/notes.json',{cache:'no-cache'})).json()}catch(e){NOTES={}}}
   const nt=(NOTES[D.slug]||{}).note||'',ne=document.getElementById('inote');ne.hidden=!nt;ne.textContent=nt;
-  document.getElementById('idet').open=innerWidth>600&&(!!opt.addr||card.classList.contains('fs'));
+  document.getElementById('idet').open=innerWidth>600&&!!opt.addr&&card.classList.contains('fs');
   document.getElementById('copied').textContent='';document.getElementById('linkbox').hidden=true;
   if(opt.pin){const k=T.cellLL(opt.pin[0],opt.pin[1]);if(k>=0){const e=document.createElement('div');e.className='pin';e.innerHTML=PIN;stage.appendChild(e);T.labs.unshift({e,k,type:'pin'})}}
   curSlug=D.slug;try{history.replaceState(null,'','#'+D.slug)}catch(e){}
@@ -316,7 +329,7 @@ stage.addEventListener('pointerout',ev=>{if(ev.target.closest('.mk'))tipTimer=se
 stage.addEventListener('click',ev=>{const e=ev.target.closest('.mk');if(e){showTip(e);tipTimer=setTimeout(()=>tip.style.display='none',2500)}});
 // ---------- full screen ----------
 const card=document.querySelector('.card'),fsb=document.getElementById('fsb'),backB=document.getElementById('back');
-const pageMode=new URLSearchParams(location.search).has('full');
+const pageMode=new URLSearchParams(location.search).has('full');if(window.top!==window)card.classList.add('embedded');
 const fsEl=()=>document.fullscreenElement||document.webkitFullscreenElement;
 function setFs(on){card.classList.toggle('fs',on);requestAnimationFrame(size)}
 if(pageMode)setFs(true);
