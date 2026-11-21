@@ -4,14 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Green infrastructure cost estimator</title>
-<meta name="robots" content="noindex">
+<meta name="description" content="Free planning-level build, upkeep and life-cycle cost estimator for green infrastructure stormwater practices.">
 <style>
 @font-face{font-family:"Oswald";src:url("fonts/oswald-latin-500-normal.woff2") format("woff2");font-weight:500;font-display:swap}
 @font-face{font-family:"Jost";src:url("fonts/jost-latin-400-normal.woff2") format("woff2");font-weight:400;font-display:swap}
 @font-face{font-family:"Jost";src:url("fonts/jost-latin-500-normal.woff2") format("woff2");font-weight:500;font-display:swap}
 :root{--navy:#18157c;--green-deep:#5f9e52;--cream:#f7f8f2;--text:#24233a;--muted:#5b5d72;--line:#e3e6dc;--blue:#2a78d6;--teal:#1baf7a;--amber:#eda100;--head:"Oswald","Arial Narrow",Arial,sans-serif;--body:"Jost","Segoe UI",Arial,sans-serif}
 *{box-sizing:border-box;min-width:0}
-html,body{margin:0;background:transparent;color:var(--text);font:15px/1.5 var(--body)}
+html,body{margin:0;background:#f7f8f2;color:var(--text);font:15px/1.5 var(--body)}
 .app{display:grid;grid-template-columns:290px minmax(0,1fr);gap:22px;background:#fff;border-radius:12px;box-shadow:0 10px 30px rgba(24,21,124,.12);padding:18px}
 h4{margin:0 0 6px;font:500 13px var(--head);text-transform:uppercase;letter-spacing:.08em;color:var(--navy)}
 .in label{display:block;font-size:13px;color:var(--muted);margin:10px 0 3px}
@@ -47,11 +47,20 @@ details{font-size:13px}details summary{cursor:pointer;color:var(--navy);font-wei
 table{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:8px}th,td{text-align:left;padding:5px 6px;border-bottom:1px solid var(--line);vertical-align:top}th{font-weight:500;color:var(--muted)}
 td.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
 .flag{margin:-4px 0 12px;padding:8px 12px;border-left:4px solid var(--amber);background:#fdf6e3;font-size:13px;line-height:1.45;border-radius:0}
+.pg{max-width:1180px;margin:0 auto;padding:22px 18px 30px}
+.ph{margin-bottom:18px}.ph .back{display:inline-block;font-size:14px;color:var(--navy);text-decoration:none;margin-bottom:10px}
+.brand{display:flex;align-items:center;gap:14px}.brand img{width:56px;height:56px;object-fit:contain}
+.ph .kick{margin:0;font:500 12px var(--head);letter-spacing:.12em;text-transform:uppercase;color:var(--green-deep)}
+.ph h1{margin:2px 0 0;font:500 clamp(28px,4vw,40px)/1.1 var(--head);color:var(--navy)}
+.ph .lede{margin:10px 0 0;max-width:70ch;color:var(--muted);font-size:16px}
+.pf{margin-top:16px;font-size:12.5px;color:var(--muted);text-align:center}
 .fine{font-size:12px;color:var(--muted);line-height:1.45}
 @media(max-width:900px){.app{grid-template-columns:1fr}.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.cmp{grid-template-columns:120px minmax(0,1fr) 70px}}
 </style>
 </head>
 <body>
+<div class="pg">
+<header class="ph"><a class="back" href="resources.html">&larr; Resources</a><div class="brand"><img src="images/logo.png" alt="" width="56" height="56"><div><p class="kick">Free tool · St. Charles Watersheds Alliance</p><h1>Green infrastructure cost estimator</h1></div></div><p class="lede">Planning-level build, upkeep and life-cycle costs for common stormwater practices, sized to your drainage area. Every published figure is shown, so you can see the evidence behind each range.</p></header>
 <div class="app">
  <aside class="in" aria-label="Project inputs">
   <h4>Project</h4>
@@ -85,6 +94,8 @@ td.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
    <table id="src"></table>
   </details>
  </main>
+</div>
+<footer class="pf">Provided free by the St. Charles Watersheds Alliance · Planning-level screening estimates, not bids or engineering cost opinions.</footer>
 </div>
 <div class="tip" id="tip"></div>
 <script>
