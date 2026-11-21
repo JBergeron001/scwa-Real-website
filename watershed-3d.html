@@ -24,6 +24,10 @@ html,body{margin:0;height:100%;background:transparent;color:var(--text);font:15p
 .lab.place::before{content:'';display:inline-block;vertical-align:1px;margin-right:4px;width:7px;height:7px;border-radius:50%;background:var(--dot,#5b5d72)}
 .lab.place.community{font-weight:500;color:#24233a}.lab.place.community::before{--dot:#24233a;width:5px;height:5px}
 .lab.place.school{--dot:#e08a00}.lab.place.college{--dot:#7b3fa0}.lab.place.hospital{--dot:#c8102e}.lab.place.fire{--dot:#d9531e}.lab.place.cityhall{--dot:#18157c}.lab.place.water{--dot:#2a7fcf;color:#1d6fb8;font-style:italic}
+.tip.mini{font:500 11px/1.2 var(--body);letter-spacing:0;color:var(--navy);background:rgba(255,255,255,.94);border:1px solid rgba(24,21,124,.18);padding:2px 6px;border-radius:4px;box-shadow:0 1px 3px rgba(0,0,0,.12);transform:translate(-50%,calc(-100% - 7px))}
+.tip.mini small{display:inline;font:400 10px var(--body);color:var(--muted);opacity:1;margin-left:5px}
+.mk::after{content:'';position:absolute;inset:-7px}
+.mk.park::after{inset:-6px}
 .mk{position:absolute;left:0;top:0;width:8px;height:8px;border-radius:50%;background:var(--dot,#5b5d72);border:1.5px solid #fff;box-shadow:0 1px 2px rgba(0,0,0,.35);cursor:help;z-index:1}
 .mk.park{width:11px;height:13px;border:0;border-radius:0;background:none;box-shadow:none;filter:drop-shadow(0 1px 1px rgba(0,0,0,.35))}.mk.park svg{display:block;width:100%;height:100%}
 .mk.school{--dot:#e08a00}.mk.college{--dot:#7b3fa0}.mk.hospital{--dot:#c8102e}.mk.fire{--dot:#d9531e}.mk.cityhall{--dot:#18157c}.mk.water{--dot:#2a7fcf}
@@ -256,12 +260,12 @@ renderer.domElement.addEventListener('pointerup',ev=>{if(!down0)return;if(inComp
 stage.addEventListener('mouseleave',()=>{ctl.enableZoom=false;hint.textContent='Click to enable zoom'});
 function doHover(){const ev=hovQ;hovQ=null;const id=inCompass(ev)?0:pickShed(ev);if(id!==county.hl){county.hl=id;county.recolor()}
  renderer.domElement.style.cursor=id?'pointer':'grab';
- if(id){const s=DATA.sheds[id-1],r=stage.getBoundingClientRect();tip.innerHTML=s[1]+'<small>Click to explore in 3D</small>';tip.style.display='block';tip.style.left=(ev.clientX-r.left)+'px';tip.style.top=(ev.clientY-r.top)+'px'}
+ if(id){const s=DATA.sheds[id-1],r=stage.getBoundingClientRect();tip.classList.remove('mini');tip.innerHTML=s[1]+'<small>Click to explore in 3D</small>';tip.style.display='block';tip.style.left=(ev.clientX-r.left)+'px';tip.style.top=(ev.clientY-r.top)+'px'}
  else tip.style.display='none'}
 
 // ---------- marker names on hover or tap ----------
 let tipTimer=0;
-function showTip(e){const r=stage.getBoundingClientRect(),b=e.getBoundingClientRect();tip.innerHTML='';const t=document.createElement('span');t.textContent=e.dataset.name;const sm=document.createElement('small');sm.textContent=e.dataset.cat;tip.append(t,sm);
+function showTip(e){const r=stage.getBoundingClientRect(),b=e.getBoundingClientRect();tip.innerHTML='';const t=document.createElement('span');t.textContent=e.dataset.name;const sm=document.createElement('small');sm.textContent=e.dataset.cat;tip.append(t,sm);tip.classList.add('mini');
  tip.style.display='block';tip.style.left=(b.left+b.width/2-r.left)+'px';tip.style.top=(b.top-r.top)+'px';clearTimeout(tipTimer)}
 stage.addEventListener('pointerover',ev=>{const e=ev.target.closest('.mk');if(e)showTip(e)});
 stage.addEventListener('pointerout',ev=>{if(ev.target.closest('.mk'))tipTimer=setTimeout(()=>tip.style.display='none',150)});
