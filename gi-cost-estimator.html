@@ -46,6 +46,7 @@ button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid 
 details{font-size:13px}details summary{cursor:pointer;color:var(--navy);font-weight:500}
 table{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:8px}th,td{text-align:left;padding:5px 6px;border-bottom:1px solid var(--line);vertical-align:top}th{font-weight:500;color:var(--muted)}
 td.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.flag{margin:-4px 0 12px;padding:8px 12px;border-left:4px solid var(--amber);background:#fdf6e3;font-size:13px;line-height:1.45;border-radius:0}
 .fine{font-size:12px;color:var(--muted);line-height:1.45}
 @media(max-width:900px){.app{grid-template-columns:1fr}.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.cmp{grid-template-columns:120px minmax(0,1fr) 70px}}
 </style>
@@ -74,10 +75,11 @@ td.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
    <div class="k"><p>Life-cycle cost</p><b id="kl"></b><span id="klr"></span></div>
    <div class="k"><p>Per 1,000 gallons managed</p><b id="kg"></b><span id="kgr"></span></div>
   </div>
+  <p class="flag" id="flag" hidden></p>
   <div class="card"><h4>Build cost evidence<small>each dot is one published figure, in 2025 dollars, for this size</small></h4><div class="strip" id="s1"></div></div>
   <div class="card"><h4>Yearly upkeep evidence<small>each dot is one published figure, in 2025 dollars</small></h4><div class="strip" id="s2"></div>
    <div class="legend" id="leg"></div></div>
-  <div class="card"><h4>Compare practices for this drainage area<small>typical cost per 1,000 gallons managed each year, with low to high range</small></h4><div class="cmp" id="cmp"></div><p class="fine" style="margin:8px 0 0">Bioswale figures come from grass swale data and likely understate engineered bioswales with amended soils. Infiltration basin figures rest on a single national curve.</p></div>
+  <div class="card"><h4>Compare practices for this drainage area<small>typical cost per 1,000 gallons managed each year, with low to high range</small></h4><div class="cmp" id="cmp"></div><p class="fine" style="margin:8px 0 0">* May be understated where costs depend on more detailed site-specific information and data, such as engineered bioswales, infiltration basins needing pretreatment, and street planters in tight utility corridors.</p></div>
   <details><summary>Sources, assumptions and every number used</summary>
    <p class="fine">Planning-level screening estimates, not bids. Range is the lowest to highest published figure; typical is the middle (median) figure. Each figure is converted to 2025 dollars with the U.S. Consumer Price Index (annual averages). St. Louis is more than 100 miles from the regional cost centers the U.S. Environmental Protection Agency uses, so the national cost level (1.0) applies. Design, engineering and contingency are added on top of build figures because several sources exclude them. Life-cycle cost adds the present value of yearly upkeep over the design life; replacement costs are not included because the sources give no replacement intervals. Gallons managed assume about 42 inches of rain a year, 90% runoff from impervious surfaces, and practices sized to capture about 85% of yearly runoff (green roofs retain about half the rain that falls on them; cisterns are assumed to reuse 30%). Default practice sizes are common planning rules of thumb; replace them with your design.</p>
    <table id="src"></table>
@@ -112,14 +114,14 @@ const P={
   epa:[[.5421,1975.2],[2.5009,3288],[7.5401,20824]],
   build:[['werf','Range low ($19.50/sq ft)',2008,A=>19.5*A],['werf','Range high ($50.85/sq ft)',2008,A=>50.85*A]],
   om:[['cnt','Low ($0.025/sq ft/yr)',0,A=>.025*A],['cnt','High ($2.89/sq ft/yr)',0,A=>2.89*A],['sbpat','$0.05/sq ft/yr',2005,A=>.05*A],['werf','Per practice, low ($670/yr)',2008,A=>670],['werf','Per practice, high ($19,320/yr)',2008,A=>19320]]},
- sw:{n:'Bioswale (vegetated swale)',u:'sf',def:x=>x.I*0.05,dh:'About 5% of the impervious area draining to it.',cap:.85,
+ sw:{flag:'Based on grass swale data. Engineered bioswales with amended soils, underdrains or check dams cost more.',n:'Bioswale (vegetated swale)',u:'sf',def:x=>x.I*0.05,dh:'About 5% of the impervious area draining to it.',cap:.85,
   build:[['werf','$1,000 per acre drained',2008,(A,x)=>1000*x.da],['werf','$3,000 per acre drained',2008,(A,x)=>3000*x.da]],
   om:[['cnt','$527 per acre treated/yr',0,(A,x)=>527*x.da],['cnt','$2,744 per acre treated/yr',0,(A,x)=>2744*x.da],['werf','Per practice, low ($150/yr)',2008,A=>150],['werf','Per practice, high ($6,020/yr)',2008,A=>6020]],
   omPct:[['sbpat','5% of build cost/yr',.05],['sbpat','7% of build cost/yr',.07]]},
- ib:{n:'Infiltration basin',u:'sf',def:x=>x.I*0.04,dh:'About 4% of the impervious area draining to it.',cap:.85,
+ ib:{flag:'Based on a single national curve. Pretreatment, soil testing and outlet structures can add cost.',n:'Infiltration basin',u:'sf',def:x=>x.I*0.04,dh:'About 4% of the impervious area draining to it.',cap:.85,
   epa:[[.8205,1928.2],[.8473,3864],[3.7531,13050]],build:[],om:[],
   omPct:[['sbpat','1% of build cost/yr',.01],['sbpat','3% of build cost/yr',.03]]},
- sp:{n:'Street planter / tree box',u:'sf',def:x=>x.I*0.05,dh:'About 5% of the impervious area; in-curb vaults counted at about 100 sq ft each.',cap:.85,
+ sp:{flag:'Utility conflicts, structural soil and curb work in street retrofits can add cost.',n:'Street planter / tree box',u:'sf',def:x=>x.I*0.05,dh:'About 5% of the impervious area; in-curb vaults counted at about 100 sq ft each.',cap:.85,
   epa:[[.5592,1928.2],[2.7125,2580.6],[10.357,14163]],
   build:[['werf','In-curb planter vault ($10,000 each)',2008,A=>10000*Math.max(1,Math.round(A/100))]],
   om:[['werf','Per vault, low ($117/yr)',2008,A=>117*Math.max(1,Math.round(A/100))],['werf','Per vault, high ($1,155/yr)',2008,A=>1155*Math.max(1,Math.round(A/100))]]},
@@ -128,7 +130,7 @@ const P={
   build:[['werf','Tank only, low ($1.33/gallon)',2008,A=>1.33*A],['werf','Tank only, high ($2.51/gallon)',2008,A=>2.51*A]],
   om:[['sbpat','$100/yr',2005,A=>100],['cnt','$200 per installation/yr',0,A=>200],['werf','Per practice, low ($345/yr)',2008,A=>345],['werf','Per practice, high ($11,280/yr)',2008,A=>11280]]}};
 const st={type:1,hard:1};const $=i=>document.getElementById(i);
-const sel=$('pr');for(const k in P){const o=document.createElement('option');o.value=k;o.textContent=P[k].n;sel.appendChild(o)}
+const sel=$('pr');for(const k in P){const o=document.createElement('option');o.value=k;o.textContent=P[k].n+(P[k].flag?' *':'');sel.appendChild(o)}
 let userSize=false;
 const ctx=()=>{const da=+$('da').value||0,ip=+$('ip').value/100;return{da,ip,I:da*43560*ip}};
 const lvl=()=>Math.min(2,Math.max(0,Math.round((st.type+st.hard)/2+ (st.type===2&&st.hard===2?0.5:0))));
@@ -167,6 +169,7 @@ function draw(){const k=sel.value,p=P[k],x=ctx();
  $('szl').textContent=p.u==='gal'?'Storage size (gallons)':'Practice size (sq ft)';
  if(!userSize)$('sz').value=Math.max(1,Math.round(p.def(x)));$('szh').textContent=p.dh+(userSize?' (your size)':' Edit to match your design.');
  const A=+$('sz').value||1,r=evalP(k,x,A);
+ const fl=$('flag');fl.hidden=!p.flag;if(p.flag)fl.textContent='* May be understated: this estimate needs more detailed site-specific information and data. '+p.flag;
  $('kb').textContent=fmt(r.bt);$('kbr').textContent=fmt(r.bl)+' to '+fmt(r.bh);
  $('ko').textContent=fmt(r.ot);$('kor').textContent=fmt(r.ol)+' to '+fmt(r.oh);
  $('kl').textContent=fmt(r.lc[1]);$('klr').textContent=fmt(r.lc[0])+' to '+fmt(r.lc[2])+' over '+$('life').value+' yrs';
@@ -178,7 +181,7 @@ function draw(){const k=sel.value,p=P[k],x=ctx();
  const rows=Object.keys(P).map(q=>{const pp=P[q],A2=q===k?A:Math.max(1,pp.def(x));return{q,n:pp.n,r:evalP(q,x,A2)}}).filter(o=>isFinite(o.r.per[1])&&o.r.per[1]>0);
  const hi=Math.max(...rows.map(o=>o.r.per[2])),lo=Math.min(...rows.map(o=>o.r.per[0])),mn=Math.max(.01,lo/1.5),mx=hi*1.2,lx=v=>(Math.log10(v)-Math.log10(mn))/(Math.log10(mx)-Math.log10(mn))*100;
  rows.sort((a,b)=>a.r.per[1]-b.r.per[1]);const c=$('cmp');c.innerHTML='';
- for(const o of rows){const nm=document.createElement('div');nm.className='nm'+(o.q===k?' on':'');nm.textContent=o.n;
+ for(const o of rows){const nm=document.createElement('div');nm.className='nm'+(o.q===k?' on':'');nm.textContent=o.n+(P[o.q].flag?' *':'');
   const tr=document.createElement('div');tr.className='tr';const rg=document.createElement('div');rg.className='rg';rg.style.left=lx(o.r.per[0])+'%';rg.style.width=Math.max(1,lx(o.r.per[2])-lx(o.r.per[0]))+'%';if(o.q===k)rg.style.background='#9fc0ea';
   const tv=document.createElement('div');tv.className='tv';tv.style.left=lx(o.r.per[1])+'%';if(o.q!==k)tv.style.background='#7fa6d6';tr.append(rg,tv);
   const v=document.createElement('div');v.className='v';v.textContent='$'+o.r.per[1].toFixed(2);c.append(nm,tr,v)}
