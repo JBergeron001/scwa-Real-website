@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Native plant finder</title>
+<meta name="robots" content="noindex">
+<style>
+@font-face{font-family:"Oswald";src:url("fonts/oswald-latin-500-normal.woff2") format("woff2");font-weight:500;font-display:swap}
+@font-face{font-family:"Jost";src:url("fonts/jost-latin-400-normal.woff2") format("woff2");font-weight:400;font-display:swap}
+@font-face{font-family:"Jost";src:url("fonts/jost-latin-500-normal.woff2") format("woff2");font-weight:500;font-display:swap}
+:root{--navy:#18157c;--green:#acd5a1;--green-deep:#5f9e52;--cream:#f7f8f2;--text:#24233a;--muted:#5b5d72;--line:#e3e6dc;--head:"Oswald","Arial Narrow",Arial,sans-serif;--body:"Jost","Segoe UI",Arial,sans-serif}
+*{box-sizing:border-box;min-width:0}
+html,body{margin:0;height:100%;background:transparent;color:var(--text);font:15px/1.5 var(--body)}
+.app{height:100%;display:grid;grid-template-columns:270px minmax(0,1fr);gap:22px;background:#fff;border-radius:12px;box-shadow:0 10px 30px rgba(24,21,124,.12);padding:18px;overflow:hidden}
+.filters{overflow:auto;padding-right:4px}
+.grp{margin-bottom:14px}
+.grp h4{margin:0 0 6px;font:500 13px var(--head);text-transform:uppercase;letter-spacing:.08em;color:var(--navy)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips button{font:500 13px var(--body);min-height:34px;padding:0 12px;border-radius:17px;border:2px solid var(--navy);background:#fff;color:var(--navy);cursor:pointer}
+.chips button[aria-pressed=true]{background:var(--navy);color:#fff}
+.chips button:focus-visible,input:focus-visible,.reset:focus-visible{outline:3px solid var(--green-deep);outline-offset:2px}
+input[type=search]{width:100%;font:16px var(--body);min-height:40px;padding:0 12px;border:2px solid var(--line);border-radius:8px}
+.zones{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-top:2px}
+.zones svg{width:100%;height:auto;display:block;margin-top:6px}
+.reset{font:500 12px var(--head);text-transform:uppercase;letter-spacing:.06em;border:0;background:none;color:var(--green-deep);cursor:pointer;padding:6px 0}
+.results{display:flex;flex-direction:column;min-height:0}
+.count{font-size:14px;color:var(--muted);margin:2px 0 10px}
+.count b{color:var(--navy);font-weight:500}
+.list{overflow:auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px;padding:2px 4px 8px 2px;align-content:start}
+.card{border:1px solid var(--line);border-radius:10px;padding:12px 12px 10px;display:grid;grid-template-columns:30px 1fr;gap:4px 10px;align-content:start;background:var(--cream)}
+.sw{width:30px;height:30px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.1)}
+.card h5{margin:0;font:500 17px/1.15 var(--head);color:var(--navy)}
+.card i{display:block;font-size:12.5px;color:var(--muted)}
+.meta{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+.meta span{font-size:11.5px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:1px 8px;white-space:nowrap}
+.meta .z{border-color:#9fd3ea;color:#1d6fb8}
+.card p{grid-column:1/-1;margin:6px 0 0;font-size:13px;line-height:1.4;color:var(--text)}
+.empty{color:var(--muted);padding:20px}
+.foot{font-size:12px;color:var(--muted);margin:8px 0 0}
+.foot a{color:var(--navy)}
+.ftoggle{display:none}
+@media(max-width:720px){.app{grid-template-columns:1fr;grid-template-rows:auto minmax(0,1fr);gap:10px;padding:12px}.filters{max-height:55vh}.list{grid-template-columns:1fr}
+ .ftoggle{display:block;font:500 14px var(--head);text-transform:uppercase;letter-spacing:.06em;min-height:42px;border:2px solid var(--navy);border-radius:21px;background:#fff;color:var(--navy);width:100%}
+ .filters.closed .grp:not(.always){display:none}}
+</style>
+</head>
+<body>
+<div class="app">
+ <aside class="filters closed" id="filters" aria-label="Filters">
+  <div class="grp always"><h4>Search</h4><input type="search" id="q" placeholder="Name, color or wildlife" aria-label="Search plants"></div>
+  <button class="ftoggle" id="ft" type="button" aria-expanded="false">Show filters</button>
+  <div class="grp"><h4>Rain garden zone</h4><div class="chips" data-f="zone"><button data-v="bottom">Bottom</button><button data-v="slope">Slope</button><button data-v="edge">Edge</button></div>
+   <svg viewBox="0 0 240 60" aria-hidden="true"><path d="M0 18 H40 Q70 18 82 34 Q94 50 120 50 Q146 50 158 34 Q170 18 200 18 H240 V60 H0Z" fill="#c8a777"/><path d="M95 44 Q120 52 145 44" stroke="#2f8fd8" stroke-width="5" fill="none" stroke-linecap="round"/><g font-family="Jost,sans-serif" font-size="10" fill="#5b5d72" text-anchor="middle"><text x="120" y="38">bottom</text><text x="76" y="14">slope</text><text x="164" y="14">slope</text><text x="22" y="12">edge</text><text x="218" y="12">edge</text></g></svg></div>
+  <div class="grp"><h4>Sun</h4><div class="chips" data-f="sun"><button data-v="full">Full sun</button><button data-v="part">Part shade</button><button data-v="shade">Shade</button></div></div>
+  <div class="grp"><h4>Soil</h4><div class="chips" data-f="soil"><button data-v="wet">Wet</button><button data-v="moist">Moist</button><button data-v="average">Average</button><button data-v="dry">Dry</button></div></div>
+  <div class="grp"><h4>Type</h4><div class="chips" data-f="type"><button data-v="flower">Wildflower</button><button data-v="grass">Grass &amp; sedge</button><button data-v="shrub">Shrub</button><button data-v="tree">Tree</button></div></div>
+  <div class="grp"><h4>Height</h4><div class="chips" data-f="ht"><button data-v="s">Under 2 ft</button><button data-v="m">2 to 4 ft</button><button data-v="l">Over 4 ft</button></div></div>
+  <div class="grp"><h4>Blooms in</h4><div class="chips" data-f="season"><button data-v="spring">Spring</button><button data-v="summer">Summer</button><button data-v="fall">Fall</button></div></div>
+  <div class="grp"><h4>Good for</h4><div class="chips" data-f="good"><button data-v="pollinators">Pollinators</button><button data-v="butterflies">Butterflies</button><button data-v="hummingbirds">Hummingbirds</button><button data-v="birds">Birds</button></div></div>
+  <div class="grp"><button class="reset" id="reset" type="button">Clear all filters</button></div>
+ </aside>
+ <section class="results" aria-live="polite">
+  <p class="count" id="count"></p>
+  <div class="list" id="list"></div>
+  <p class="foot">General guidance for St. Charles County. Check details and local sources with <a href="https://grownative.org" target="_blank" rel="noopener">Grow Native!</a> or the <a href="https://www.missouribotanicalgarden.org/plantfinder/plantfindersearch.aspx" target="_blank" rel="noopener">Missouri Botanical Garden Plant Finder</a> before you buy.</p>
+ </section>
+</div>
+<script>
+{
+// [common, scientific, type, sun, soil, min ft, max ft, bloom months, color(hex or ''), good-for, note]
+const P=[
+['Swamp milkweed','Asclepias incarnata','flower','full part','wet moist',3,5,'6-8','#d98bb6','pollinators butterflies','Monarch caterpillar host. Thrives in the wet bottom of a rain garden.'],
+['Butterfly milkweed','Asclepias tuberosa','flower','full','average dry',1,2.5,'6-8','#f28c28','pollinators butterflies','Bright orange monarch host for dry, sunny edges. Deep taproot, so plant it once and leave it.'],
+['Southern blue flag iris','Iris virginica','flower','full part','wet moist',2,3,'5-6','#6f6fd0','pollinators','Handles standing water after storms.'],
+['Cardinal flower','Lobelia cardinalis','flower','full part','wet moist',2,4,'7-9','#d1102e','hummingbirds pollinators','Brilliant red spikes that hummingbirds love.'],
+['Great blue lobelia','Lobelia siphilitica','flower','full part','moist',1,3,'8-10','#4d6fd6','pollinators','Late-summer blue for moist ground.'],
+['Purple coneflower','Echinacea purpurea','flower','full part','average dry',2,4,'6-8','#b7559c','pollinators butterflies birds','A tough classic. Leave seed heads for goldfinches.'],
+['Pale purple coneflower','Echinacea pallida','flower','full','average dry',2,3,'6-7','#e5a8c8','pollinators butterflies','Drooping pale petals on a prairie favorite.'],
+['Black-eyed Susan','Rudbeckia hirta','flower','full','average dry',1,3,'6-9','#f2c12e','pollinators butterflies','Quick to bloom and easy to grow.'],
+['Sweet black-eyed Susan','Rudbeckia subtomentosa','flower','full part','moist average',3,5,'7-9','#f2b51f','pollinators butterflies','Tall and long blooming, with an anise scent.'],
+['Wild bergamot','Monarda fistulosa','flower','full part','average dry',2,4,'6-8','#b9a0d6','pollinators butterflies hummingbirds','Fragrant lavender pom-poms that bees crowd onto.'],
+['Blue false indigo','Baptisia australis','flower','full part','average dry',3,4,'5-6','#4b62c4','pollinators','A long-lived shrub-like perennial with blue spikes.'],
+['New England aster','Symphyotrichum novae-angliae','flower','full','moist average',3,6,'8-10','#8b4fc4','pollinators butterflies','Fall fuel for migrating monarchs.'],
+['Aromatic aster','Symphyotrichum oblongifolium','flower','full','dry average',1,3,'9-10','#8a7fe0','pollinators butterflies','A late, tidy mound of blue-purple for dry spots.'],
+['Sweet Joe Pye weed','Eutrochium purpureum','flower','full part','moist average',4,7,'7-9','#d7a1b8','pollinators butterflies','A towering butterfly magnet for the back of a bed.'],
+['Prairie blazing star','Liatris pycnostachya','flower','full','moist average',2,5,'7-8','#a052c9','pollinators butterflies','Purple spikes that bloom from the top down.'],
+['Rough blazing star','Liatris aspera','flower','full','dry',1,3,'8-9','#a35bc9','pollinators butterflies','Button-like purple blooms for dry soil.'],
+['Obedient plant','Physostegia virginiana','flower','full part','moist average',2,4,'8-9','#e6a3c6','pollinators hummingbirds','Spreads readily. Give it room or edge it.'],
+['Golden Alexanders','Zizia aurea','flower','full part','moist average',1,3,'4-6','#e9d12f','pollinators butterflies','Early yellow for spring bees and swallowtail caterpillars.'],
+['Ohio spiderwort','Tradescantia ohiensis','flower','full part','average dry',2,3,'5-7','#5a78d8','pollinators','Fresh blue flowers each morning.'],
+['Wild columbine','Aquilegia canadensis','flower','part shade','average dry',1,2,'4-5','#d6452e','hummingbirds pollinators','Red and yellow lanterns for early hummingbirds.'],
+['Wild geranium','Geranium maculatum','flower','part shade','moist average',1,2,'4-6','#d7a2d4','pollinators','A soft spring groundcover under trees.'],
+['Royal catchfly','Silene regia','flower','full','average dry',2,4,'7-8','#d9251d','hummingbirds','Scarlet blooms, a prairie standout.'],
+['Rose mallow','Hibiscus lasiocarpos','flower','full','wet moist',4,7,'7-9','#f1d2dc','pollinators hummingbirds','Dinner-plate blooms in the wettest spots.'],
+['Rattlesnake master','Eryngium yuccifolium','flower','full','average dry',3,5,'6-9','#e8eedf','pollinators','Spiky globes and strap leaves, an unusual accent.'],
+['Slender mountain mint','Pycnanthemum tenuifolium','flower','full part','moist average dry',1,3,'6-9','#f4f1f6','pollinators','One of the best plants for visiting insects.'],
+['Celandine poppy','Stylophorum diphyllum','flower','part shade','moist',1,1.5,'3-5','#f2cf26','pollinators','Bright yellow for shady, moist corners.'],
+['Virginia bluebells','Mertensia virginica','flower','part shade','moist',1,2,'3-5','#6f9fe0','pollinators','Spring blue that goes dormant by summer.'],
+['Lanceleaf coreopsis','Coreopsis lanceolata','flower','full','average dry',1,2,'5-7','#f3c516','pollinators butterflies','Cheerful yellow for sunny, lean soil.'],
+['Missouri evening primrose','Oenothera macrocarpa','flower','full','dry',0.5,1,'5-8','#f6dd2c','pollinators','Big lemon blooms on a low plant for rocky, dry edges.'],
+['Little bluestem','Schizachyrium scoparium','grass','full','average dry',2,3,'','','birds','Blue-green in summer, copper in fall. Great at the edge.'],
+['Switchgrass','Panicum virgatum','grass','full part','wet moist average dry',3,6,'','','birds','Adapts from wet to dry. Its deep roots soak up runoff.'],
+['Prairie dropseed','Sporobolus heterolepis','grass','full','average dry',2,3,'','','birds','A fine-textured fountain with a sweet fall scent.'],
+['Fox sedge','Carex vulpinoidea','grass','full part','wet moist',1,3,'','','birds','A sturdy sedge for the rain garden bottom.'],
+["Gray's sedge",'Carex grayi','grass','full part shade','wet moist',2,3,'','','birds','Spiky seed heads that look like little maces.'],
+['River oats','Chasmanthium latifolium','grass','part shade','moist average',2,4,'','','birds','Dangling seed heads for shady slopes.'],
+['Prairie cordgrass','Spartina pectinata','grass','full','wet moist',4,7,'','','birds','A strong grass for holding wet soil in place.'],
+['Common rush','Juncus effusus','grass','full part','wet',2,4,'','','birds','Upright green stems for standing water.'],
+['Buttonbush','Cephalanthus occidentalis','shrub','full part','wet moist',5,12,'6-8','#f2efe4','pollinators butterflies birds','Round white flower balls. Loves wet ground.'],
+['American elderberry','Sambucus canadensis','shrub','full part','moist average',5,12,'6-7','#f4f1e3','pollinators birds','Flat white flower heads, then berries birds love.'],
+['Spicebush','Lindera benzoin','shrub','part shade','moist average',6,12,'3-4','#e8d23a','butterflies birds','Early yellow blooms. Host for spicebush swallowtails.'],
+['New Jersey tea','Ceanothus americanus','shrub','full part','average dry',2,3,'5-6','#f3f2ec','pollinators butterflies','A small, tough shrub for dry slopes.'],
+['Ninebark','Physocarpus opulifolius','shrub','full part','moist average',5,8,'5-6','#f4ece6','pollinators birds','Peeling bark and white flower clusters.'],
+['Fragrant sumac','Rhus aromatica','shrub','full part','average dry',2,6,'3-4','#e3cf47','pollinators birds','Spreads to cover banks. Red fall color.'],
+['Smooth hydrangea','Hydrangea arborescens','shrub','part shade','moist average',3,5,'6-7','#f5f3ea','pollinators','White blooms for shady, moist slopes.'],
+['River birch','Betula nigra','tree','full part','wet moist average',40,70,'','','birds','Peeling cinnamon bark. Handles wet and dry spells.'],
+['Swamp white oak','Quercus bicolor','tree','full','wet moist average',50,60,'','','birds','A long-lived oak that tolerates flooding.'],
+['Eastern redbud','Cercis canadensis','tree','full part','average',20,30,'4','#d06fa8','pollinators birds','Pink spring blooms along bare branches.'],
+['Downy serviceberry','Amelanchier arborea','tree','full part','average',15,25,'4','#f5f2ea','pollinators birds','Early white blooms and summer berries.'],
+['Bald cypress','Taxodium distichum','tree','full','wet moist average',50,70,'','','birds','A deciduous conifer that thrives in wet ground.']];
+const MON=['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const plants=P.map(r=>{const [a,b]=r[7]?r[7].split('-').map(Number):[0,0];const ms=[];if(a)for(let m=a;m<=(b||a);m++)ms.push(m);
+ const soil=r[4].split(' ');const zone=new Set();if(soil.includes('wet'))zone.add('bottom');if(soil.includes('moist'))zone.add('bottom'),zone.add('slope');if(soil.includes('average'))zone.add('slope'),zone.add('edge');if(soil.includes('dry'))zone.add('edge');
+ if(r[2]==='tree'){zone.clear();if(soil.includes('wet'))zone.add('slope');zone.add('edge')}
+ const ht=new Set();if(r[5]<2)ht.add('s');if(r[6]>=2&&r[5]<=4)ht.add('m');if(r[6]>4)ht.add('l');if(r[5]<2&&r[6]<2)ht.add('s');
+ const season=new Set();for(const m of ms){if(m<=5)season.add('spring');else if(m<=8)season.add('summer');else season.add('fall')}
+ return{name:r[0],sci:r[1],type:r[2],sun:r[3].split(' '),soil,zone:[...zone],ht:[...ht],season:[...season],months:r[7]?MON[a]+(b&&b!==a?'–'+MON[b]:''):'',color:r[8],good:r[9].split(' '),note:r[10],lo:r[5],hi:r[6]}});
+const F={zone:new Set(),sun:new Set(),soil:new Set(),type:new Set(),ht:new Set(),season:new Set(),good:new Set()};
+const LBL={full:'Full sun',part:'Part shade',shade:'Shade',wet:'Wet',moist:'Moist',average:'Average',dry:'Dry',bottom:'Bottom',slope:'Slope',edge:'Edge',flower:'Wildflower',grass:'Grass & sedge',shrub:'Shrub',tree:'Tree'};
+const q=document.getElementById('q'),list=document.getElementById('list'),count=document.getElementById('count');
+const ft=n=>n<1?Math.round(n*12)+' in':(Number.isInteger(n)?n:n.toFixed(1))+' ft';
+function render(){const s=q.value.trim().toLowerCase();
+ const out=plants.filter(p=>Object.entries(F).every(([k,set])=>!set.size||[...set].some(v=>p[k]===v||(Array.isArray(p[k])&&p[k].includes(v))))&&(!s||[p.name,p.sci,p.note,p.good.join(' '),p.type].join(' ').toLowerCase().includes(s)));
+ count.innerHTML='';const b=document.createElement('b');b.textContent=out.length;count.append(b,document.createTextNode(` of ${plants.length} Missouri native plants`));
+ list.innerHTML='';if(!out.length){const e=document.createElement('p');e.className='empty';e.textContent='No plants match all of those choices. Try removing a filter.';list.appendChild(e);return}
+ for(const p of out){const c=document.createElement('article');c.className='card';
+  const sw=document.createElement('div');sw.className='sw';sw.style.background=p.color||(p.type==='tree'?'#4a8f3c':'#8fbf63');sw.title=p.color?'Flower color':'Foliage';
+  const hd=document.createElement('div');const h=document.createElement('h5');h.textContent=p.name;const i=document.createElement('i');i.textContent=p.sci;hd.append(h,i);
+  const m=document.createElement('div');m.className='meta';
+  const tag=(t,cls)=>{const s=document.createElement('span');if(cls)s.className=cls;s.textContent=t;m.appendChild(s)};
+  tag(ft(p.lo)+'–'+ft(p.hi));if(p.months)tag('Blooms '+p.months);tag(p.sun.map(v=>LBL[v]).join(', '));tag(p.soil.map(v=>LBL[v]).join(', ')+' soil');tag(p.zone.map(v=>LBL[v]).join(' & ')+' zone','z');
+  const n=document.createElement('p');n.textContent=p.note;c.append(sw,hd,m,n);list.appendChild(c)}}
+document.querySelectorAll('.chips').forEach(g=>{const k=g.dataset.f;g.querySelectorAll('button').forEach(b=>{b.type='button';b.setAttribute('aria-pressed','false');
+ b.addEventListener('click',()=>{const v=b.dataset.v;F[k].has(v)?F[k].delete(v):F[k].add(v);b.setAttribute('aria-pressed',F[k].has(v));render()})})});
+q.addEventListener('input',render);
+document.getElementById('reset').addEventListener('click',()=>{for(const s of Object.values(F))s.clear();q.value='';document.querySelectorAll('.chips button').forEach(b=>b.setAttribute('aria-pressed','false'));render()});
+const fl=document.getElementById('filters'),ftb=document.getElementById('ft');ftb.addEventListener('click',()=>{const open=fl.classList.toggle('closed')===false;ftb.setAttribute('aria-expanded',open);ftb.textContent=open?'Hide filters':'Show filters'});
+render();
+}
+</script>
+</body>
+</html>
