@@ -222,6 +222,7 @@ function build(D,kind){
     if(st.roads&&RD){const rc=RD[k]&7;if(rc&&(c!==1||rc===3)){const r=ROADS[rc];tmp.lerp(r[0],r[1])}}
     if(st.cities&&!wet){if((P[k]>>4)&1)tmp.copy(cityLine);else if((P[k]>>5)&1)tmp.lerp(cityTint,.4)}
     if(T.hl&&WS&&WS[k]===T.hl)tmp.lerp(hiC,.38);
+    if(T.cm&&T.cm[k])tmp.lerp(rainTint,.32);
     col[k*3]=tmp.r;col[k*3+1]=tmp.g;col[k*3+2]=tmp.b}
    top.attributes.color.needsUpdate=true},
   applyEx(ex){for(let k=0;k<N;k++)pos[k*3+1]=inC(k)?yOf(elev(k),ex)+.02:0;top.attributes.position.needsUpdate=true;top.computeVertexNormals();
@@ -348,44 +349,61 @@ const onFs=()=>{setFs(!!fsEl()||pageMode)};
 document.addEventListener('fullscreenchange',onFs);document.addEventListener('webkitfullscreenchange',onFs);
 backB.addEventListener('click',()=>{if(fsEl()){(document.exitFullscreen||document.webkitExitFullscreen).call(document);return}
  if(pageMode){if(history.length>1)history.back();else location.href='./';return}setFs(false)});
-// ---------- where does my rain go ----------
+// ---------- where does my rain go (visual) ----------
 const storyEl=document.getElementById('story');let trace=null;
-function flowField(T){if(T.ff)return T.ff;const {NX,NY,N}=T,ins=T.inC,Hf=new Float32Array(N),done=new Uint8Array(N),out=new Uint8Array(N);
+function flowField(T){if(T.ff)return T.ff;const {NX,NY,N}=T,ins=T.inC,Hf=new Float32Array(N),done=new Uint8Array(N),out=new Uint8Array(N),to=new Int32Array(N).fill(-1);
  for(let k=0;k<N;k++)Hf[k]=T.elevAt(k);
  const hp=[],push=k=>{hp.push(k);let i=hp.length-1;while(i){const p=(i-1)>>1;if(Hf[hp[p]]<=Hf[hp[i]])break;[hp[p],hp[i]]=[hp[i],hp[p]];i=p}},
   pop=()=>{const top=hp[0],l=hp.pop();if(hp.length){hp[0]=l;let i=0;for(;;){const a=2*i+1,b=a+1;let m=i;if(a<hp.length&&Hf[hp[a]]<Hf[hp[m]])m=a;if(b<hp.length&&Hf[hp[b]]<Hf[hp[m]])m=b;if(m===i)break;[hp[m],hp[i]]=[hp[i],hp[m]];i=m}}return top};
  for(let i=0;i<NY;i++)for(let j=0;j<NX;j++){const k=i*NX+j;if(!ins(k))continue;
   let edge=i===0||j===0||i===NY-1||j===NX-1||T.cls(k)===1;if(!edge)for(let a=-1;a<=1&&!edge;a++)for(let b=-1;b<=1;b++)if(!ins(k+a*NX+b)){edge=true;break}
   if(edge){out[k]=1;done[k]=1;push(k)}}
- while(hp.length){const c=pop(),i=(c/NX)|0,j=c%NX;for(let a=-1;a<=1;a++)for(let b=-1;b<=1;b++){const ii=i+a,jj=j+b;if(ii<0||jj<0||ii>=NY||jj>=NX)continue;const n=ii*NX+jj;if(done[n]||!ins(n))continue;done[n]=1;if(Hf[n]<=Hf[c])Hf[n]=Hf[c]+1e-3;push(n)}}
- return T.ff={Hf,out}}
-function pathFrom(T,k){const {Hf,out}=flowField(T),{NX,NY}=T,path=[k],seen=new Set([k]);let km=0;
- while(!out[k]&&path.length<6000){const i=(k/NX)|0,j=k%NX;let best=-1,bs=0;
-  for(let a=-1;a<=1;a++)for(let b=-1;b<=1;b++){if(!a&&!b)continue;const ii=i+a,jj=j+b;if(ii<0||jj<0||ii>=NY||jj>=NX)continue;const n=ii*NX+jj;if(!T.inC(n))continue;const d=a&&b?1.414:1,sl=(Hf[k]-Hf[n])/d;if(sl>bs){bs=sl;best=n}}
-  if(best<0||seen.has(best))break;km+=(Math.abs(best-k)===1||Math.abs(best-k)===NX?1:1.414)*T.D.cellkm;k=best;seen.add(k);path.push(k)}
- return{path,km,end:k}}
-const shedName=c=>{const r=DATA.sheds.find(x=>x[0]===c);return r?r[1]:''};
-function clearTrace(){if(trace){cur.group.remove(trace.mesh,trace.drop);trace.mesh.geometry.dispose();trace=null}}
-function startTrace(T,k){if(k<0||!T.inC(k)||!T.ff&&false)return;clearTrace();
- const {path,km,end}=pathFrom(T,k);if(path.length<2){storyEl.hidden=true;return}
- const pts=[];for(let n=0;n<path.length;n+=2){const q=path[n];pts.push(new THREE.Vector3(T.pos[q*3],T.pos[q*3+1]+.25,T.pos[q*3+2]))}
- const last=path[path.length-1];pts.push(new THREE.Vector3(T.pos[last*3],T.pos[last*3+1]+.25,T.pos[last*3+2]));
- const curve=new THREE.CatmullRomCurve3(pts),seg=Math.max(16,pts.length*2),g=new THREE.TubeGeometry(curve,seg,.22,6,false);
- const mesh=new THREE.Mesh(g,new THREE.MeshBasicMaterial({color:'#00c8ff',transparent:true,opacity:.95,depthTest:false}));mesh.renderOrder=5;g.setDrawRange(0,0);
- const drop=new THREE.Mesh(new THREE.SphereGeometry(.55,16,12),new THREE.MeshBasicMaterial({color:'#ffffff',depthTest:false}));drop.renderOrder=6;
- cur.group.add(mesh,drop);trace={mesh,drop,curve,total:g.index.count,seg,t0:performance.now(),ms:Math.min(6000,1500+path.length*6)};
- // story
- const creeks=[];for(const q of path){const c=T.creekAt(q);if(c&&!/(Missouri|Mississippi|Illinois) River/.test(c)&&creeks[creeks.length-1]!==c)creeks.push(c)}
- const uc=[...new Set(creeks)],mi=km*0.6214,info=DATA.sheds.find(r=>r[0]===T.D.huc12)||[];
- const bigRiver=T.D.huc12.startsWith('1030')?'Missouri River':'Mississippi River',reachedBig=T.isBig(end)||T.cls(end)===1;
- const down=[];let c=info[7];while(c&&shedName(c)&&down.length<4){down.push(shedName(c));const r=DATA.sheds.find(x=>x[0]===c);c=r?r[7]:''}
- const L=a=>a.length<2?a.join(''):a.slice(0,-1).join(', ')+' and '+a[a.length-1];
- let t=`A raindrop here runs about ${mi<0.1?'0.1':mi.toFixed(mi<10?1:0)} miles downhill`+(uc.length?` into ${L(uc.slice(0,3))}`:'')+'. ';
- if(reachedBig)t+=`It reaches the ${bigRiver} right here. `;
- else t+=`It leaves ${T.D.name}`+(down.length?` and flows on through the ${L(down)} watershed${down.length>1?'s':''}`:'')+` to the ${bigRiver}. `;
- t+=bigRiver==='Missouri River'?'The Missouri joins the Mississippi just north of St. Louis, and from there the water travels about 1,200 more river miles to the Gulf of Mexico.':'From there the Mississippi carries it about 1,200 more river miles to the Gulf of Mexico.';
- t+=' Anything the rain picks up along the way, like fertilizer, oil or litter, goes with it.';
- document.getElementById('stext').textContent=t;storyEl.hidden=false}
+ const order=[];
+ while(hp.length){const c=pop();order.push(c);const i=(c/NX)|0,j=c%NX;for(let a=-1;a<=1;a++)for(let b=-1;b<=1;b++){const ii=i+a,jj=j+b;if(ii<0||jj<0||ii>=NY||jj>=NX)continue;const n=ii*NX+jj;if(done[n]||!ins(n))continue;done[n]=1;if(Hf[n]<=Hf[c])Hf[n]=Hf[c]+1e-3;push(n)}}
+ for(const k of order){if(out[k])continue;const i=(k/NX)|0,j=k%NX;let best=-1,bs=0;
+  for(let a=-1;a<=1;a++)for(let b=-1;b<=1;b++){if(!a&&!b)continue;const n=(i+a)*NX+j+b;if(!ins(n))continue;const sl=(Hf[k]-Hf[n])/(a&&b?1.414:1);if(sl>bs){bs=sl;best=n}}to[k]=best}
+ const acc=new Float32Array(N);for(let n=order.length-1;n>=0;n--){const k=order[n];acc[k]+=1;if(to[k]>=0)acc[to[k]]+=acc[k]}
+ return T.ff={Hf,out,to,acc}}
+const rainTint=new THREE.Color('#2f8fd8');let _dt=null;
+function dropTex(){if(_dt)return _dt;const c=document.createElement('canvas');c.width=c.height=64;const g=c.getContext('2d'),r=g.createRadialGradient(32,32,0,32,32,32);
+ r.addColorStop(0,'rgba(255,255,255,1)');r.addColorStop(.35,'rgba(255,255,255,.95)');r.addColorStop(1,'rgba(255,255,255,0)');g.fillStyle=r;g.fillRect(0,0,64,64);return _dt=new THREE.CanvasTexture(c)}
+function clearTrace(){if(!trace)return;const T=trace.T;T.group.remove(trace.pts,trace.trail);trace.pts.geometry.dispose();trace.trail.geometry.dispose();T.cm=null;T.recolor();trace=null}
+function startTrace(T,k0){if(k0<0||!T.inC(k0))return;clearTrace();const {to,acc,out}=flowField(T),{NX,N}=T,cellA=T.D.cellkm*T.D.cellkm;
+ // the neighborhood drainage area: everything upstream of the first point below the address that drains ~0.4 sq km (about 100 acres)
+ let p=k0,guard=0;while(!out[p]&&acc[p]*cellA<0.4&&to[p]>=0&&guard++<4000)p=to[p];
+ const up=[];for(let k=0;k<N;k++)if(to[k]>=0)(up[to[k]]||(up[to[k]]=[])).push(k);
+ const cm=new Uint8Array(N),stack=[p];cm[p]=1;const cells=[p];
+ while(stack.length&&cells.length<60000){const c=stack.pop();const u=up[c];if(u)for(const n of u)if(!cm[n]){cm[n]=1;cells.push(n);stack.push(n)}}
+ T.cm=cm;T.recolor();
+ // main path from the address to the end of the watershed
+ const path=[k0];let k=k0;guard=0;while(!out[k]&&to[k]>=0&&guard++<8000){k=to[k];path.push(k)}
+ const dist=new Map();{let d=0,q=k0;// steps from each catchment cell to the outlet
+  for(let i=path.length-1;i>=0;i--)dist.set(path[i],path.length-1-i)}
+ const stepsTo=c=>{let s=0,q=c;while(!dist.has(q)&&to[q]>=0&&s<8000){q=to[q];s++}return s+(dist.get(q)||0)};
+ // particles spread over the neighborhood area, highest ground first
+ const NP=Math.min(900,Math.max(250,cells.length));const parts=[];
+ for(let i=0;i<NP;i++){const c=cells[(Math.random()*cells.length)|0];parts.push({k0:c,k:c,t:0,jx:(Math.random()-.5)*.9,jz:(Math.random()-.5)*.9,delay:Math.random()*.6})}
+ const maxSteps=Math.max(...parts.slice(0,60).map(q=>stepsTo(q.k0)),path.length);
+ const geo=new THREE.BufferGeometry(),arr=new Float32Array(NP*3);geo.setAttribute('position',new THREE.BufferAttribute(arr,3));
+ const pts=new THREE.Points(geo,new THREE.PointsMaterial({color:'#1e7fd8',size:2.6,map:dropTex(),transparent:true,opacity:.95,depthTest:false,depthWrite:false,sizeAttenuation:true,alphaTest:.02}));pts.renderOrder=6;
+ // faint trail along the path, revealed as the water arrives
+ const tp=[];for(let n=0;n<path.length;n+=2){const q=path[n];tp.push(new THREE.Vector3(T.pos[q*3],T.pos[q*3+1]+.2,T.pos[q*3+2]))}const last=path[path.length-1];tp.push(new THREE.Vector3(T.pos[last*3],T.pos[last*3+1]+.2,T.pos[last*3+2]));
+ const tg=tp.length>1?new THREE.TubeGeometry(new THREE.CatmullRomCurve3(tp),Math.max(8,tp.length*2),.16,6,false):new THREE.BufferGeometry();
+ const trail=new THREE.Mesh(tg,new THREE.MeshBasicMaterial({color:'#64b5f6',transparent:true,opacity:.55,depthTest:false}));trail.renderOrder=5;if(tg.index)tg.setDrawRange(0,0);
+ T.group.add(trail,pts);
+ const spd=Math.max(30,maxSteps/7);trace={T,pts,arr,parts,to,out,trail,total:tg.index?tg.index.count:0,path,speed:spd,t0:performance.now(),dur:maxSteps/spd+1.5};
+ storyEl.hidden=true}
+function stepTrace(){const tr=trace,T=tr.T,pn=performance.now(),now=(pn-tr.t0)/1000,rdt=Math.min(.1,(pn-(tr.lt||pn))/1000);tr.lt=pn;
+ if(now>tr.dur+1.2){tr.t0=performance.now();for(const q of tr.parts){q.k=q.k0;q.t=0}}
+ const adv=rdt*tr.speed;let lead=0;
+ tr.parts.forEach((q,i)=>{if(now<q.delay){tr.arr[i*3+1]=-999;return}
+  q.t+=adv;while(q.t>=1){q.t-=1;const n=tr.to[q.k];if(n>=0&&!tr.out[q.k])q.k=n;else{q.t=0;break}}
+  const n=tr.to[q.k]>=0&&!tr.out[q.k]?tr.to[q.k]:q.k,P=T.pos,f=q.t,sp=.75;
+  tr.arr[i*3]=P[q.k*3]+(P[n*3]-P[q.k*3])*f+q.jx*sp;tr.arr[i*3+1]=P[q.k*3+1]+(P[n*3+1]-P[q.k*3+1])*f+.35;tr.arr[i*3+2]=P[q.k*3+2]+(P[n*3+2]-P[q.k*3+2])*f+q.jz*sp;
+  const pi=tr.path.indexOf(q.k);if(pi>lead)lead=pi});
+ tr.pts.geometry.attributes.position.needsUpdate=true;
+ if(tr.total){const frac=Math.max(tr.lead||0,lead/Math.max(1,tr.path.length-1));tr.lead=frac;tr.trail.geometry.setDrawRange(0,Math.floor(tr.total*frac/6)*6)}
+ if(now>tr.dur+1.2)tr.lead=0}
 document.getElementById('sclose').addEventListener('click',()=>{storyEl.hidden=true;clearTrace()});
 // ---------- find my watershed, links ----------
 const PIN='<svg viewBox="0 0 22 30" aria-hidden="true"><path d="M11 29s9-10.3 9-17.2A9 9 0 0 0 2 11.8C2 18.7 11 29 11 29z" fill="#b3206f" stroke="#fff" stroke-width="2"/><circle cx="11" cy="11.5" r="3.4" fill="#fff"/></svg>';
@@ -454,9 +472,7 @@ function frame(){requestAnimationFrame(frame);if(!onScreen||document.hidden)retu
  T.flow.visible=st.flow;
  if(st.flow){const {fs,fp,pos,down,cls}=T;for(let m=0;m<T.FN;m++){const f=fs[m];f.t+=.12;if(f.t>=1){f.t-=1;f.age++;const nx=down[f.k];if(nx<0||f.age>300||cls(nx)===1){T.respawn(m);continue}f.k=nx}
   const a=f.k,b=down[a]>=0?down[a]:a;for(let c=0;c<3;c++)fp[m*3+c]=pos[a*3+c]+(pos[b*3+c]-pos[a*3+c])*f.t;fp[m*3+1]+=.12}T.fg.attributes.position.needsUpdate=true}
- if(trace){const t=Math.min(1,(performance.now()-trace.t0)/trace.ms),e=1-Math.pow(1-t,2);
-  trace.mesh.geometry.setDrawRange(0,Math.floor(trace.total*e/6)*6);trace.drop.position.copy(trace.curve.getPointAt(Math.min(.999,e)));
-  const s=1+.25*Math.sin(performance.now()/120);trace.drop.scale.setScalar(t<1?s:1)}
+ if(trace)stepTrace();
  renderer.render(scene,cam);drawCompass();
  const w=stage.clientWidth,h=stage.clientHeight,shown=[];
  const mshown=[];

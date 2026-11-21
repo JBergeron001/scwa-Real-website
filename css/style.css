@@ -456,3 +456,7 @@ input:focus, textarea:focus, select:focus { outline: none; border-color: var(--b
 .photo-stack.map3d iframe { display: block; width: 100%; height: 720px; border: 0; border-radius: var(--radius); box-shadow: var(--shadow); background: var(--cream); }
 .photo-stack.map3d .logo-float { width: 96px; left: -28px; top: -34px; pointer-events: none; }
 @media (max-width: 860px) { .photo-stack.map3d iframe { height: 780px; } .photo-stack.map3d .logo-float { left: -6px; } }
+
+/* Storm Drain Defender game on the Projects page */
+.game-frame { display: block; width: 100%; height: 640px; border: 0; margin-top: 34px; background: transparent; }
+@media (max-width: 760px) { .game-frame { height: 1180px; } }

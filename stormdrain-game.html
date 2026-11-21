@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Storm Drain Defender</title>
+<meta name="robots" content="noindex">
+<style>
+@font-face{font-family:"Oswald";src:url("fonts/oswald-latin-500-normal.woff2") format("woff2");font-weight:500;font-display:swap}
+@font-face{font-family:"Jost";src:url("fonts/jost-latin-400-normal.woff2") format("woff2");font-weight:400;font-display:swap}
+@font-face{font-family:"Jost";src:url("fonts/jost-latin-500-normal.woff2") format("woff2");font-weight:500;font-display:swap}
+:root{--navy:#18157c;--green:#acd5a1;--green-deep:#5f9e52;--cream:#f7f8f2;--text:#24233a;--muted:#5b5d72;--line:#e3e6dc;--head:"Oswald","Arial Narrow",Arial,sans-serif;--body:"Jost","Segoe UI",Arial,sans-serif}
+*{box-sizing:border-box;min-width:0}
+html,body{margin:0;background:transparent;color:var(--text);font:15px/1.5 var(--body)}
+.wrap{display:grid;grid-template-columns:minmax(0,440px) minmax(0,1fr);gap:28px;align-items:start;max-width:1000px;margin:0 auto}
+.game{position:relative;aspect-ratio:3/4;width:100%;border-radius:12px;overflow:hidden;box-shadow:0 10px 30px rgba(24,21,124,.15);background:#cfe8f5;touch-action:none;user-select:none}
+canvas{display:block;width:100%;height:100%}
+.ov{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:24px;text-align:center;background:rgba(15,13,85,.78);color:#fff}
+.ov[hidden]{display:none}
+.ov h3{margin:0;font:500 30px/1.1 var(--head);text-transform:uppercase;letter-spacing:.04em}
+.ov p{margin:0;max-width:30ch;font-size:15px;color:#e6e6f5}
+.ov .big{font:500 46px/1 var(--head);color:#ffd84d}
+.ov ul{list-style:none;margin:4px 0 0;padding:0;text-align:left;max-width:34ch;font-size:13.5px;color:#e6e6f5}
+.ov li{margin:5px 0;padding-left:18px;position:relative}.ov li::before{content:'';position:absolute;left:2px;top:7px;width:8px;height:8px;border-radius:50%;background:var(--c)}
+button.go{font:500 16px var(--head);text-transform:uppercase;letter-spacing:.06em;min-height:46px;padding:0 26px;border:0;border-radius:23px;background:#ffd84d;color:var(--navy);cursor:pointer}
+button.go:focus-visible{outline:3px solid #fff;outline-offset:3px}
+.side h3{margin:0 0 6px;font:500 24px/1.15 var(--head);color:var(--navy)}
+.side p{margin:0 0 12px;color:var(--muted)}
+.key{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.key li{display:grid;grid-template-columns:34px 1fr;gap:10px;align-items:center;font-size:14px}
+.key canvas{width:34px;height:34px}
+.key b{display:block;font-weight:500;color:var(--text)}
+.key span{color:var(--muted);font-size:13px}
+.note{margin-top:14px;font-size:13px;color:var(--muted)}
+@media(max-width:760px){.wrap{grid-template-columns:1fr}.game{max-width:440px;margin:0 auto}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+ <div class="game" id="game">
+  <canvas id="cv" aria-label="Storm Drain Defender game. Move the rain garden left and right to catch pollution before it reaches the storm drain."></canvas>
+  <div class="ov" id="start"><h3>Storm Drain Defender</h3><p>Rain washes pollution off streets and yards into storm drains, and straight into our creeks. Move the rain garden to catch it first.</p><p style="font-size:13px">Drag, move the mouse, or use the arrow keys.</p><button class="go" id="play">Play</button></div>
+  <div class="ov" id="end" hidden><h3 id="etitle">Nice work</h3><div class="big" id="escore">0</div><p id="emsg"></p><ul id="etips"></ul><button class="go" id="again">Play again</button></div>
+ </div>
+ <div class="side">
+  <h3>What washes into our creeks?</h3>
+  <p>Storm drains in St. Charles County are not connected to a treatment plant. Whatever goes in flows to the nearest creek, then on to the Missouri and Mississippi Rivers.</p>
+  <ul class="key" id="key"></ul>
+  <p class="note">Catching raindrops is good too: a real rain garden soaks up rainwater so less of it rushes into the drain.</p>
+ </div>
+</div>
+<script>
+{
+const ITEMS=[
+ {id:'oil',name:'Motor oil',tip:'Fix car leaks and recycle used oil at an auto parts store.',c:'#2b2b2b'},
+ {id:'fert',name:'Fertilizer',tip:'Use less, and never spread it before a rain or on pavement.',c:'#3fa34d'},
+ {id:'pet',name:'Pet waste',tip:'Bag it and put it in the trash, every walk.',c:'#7a4a24'},
+ {id:'grass',name:'Grass clippings and leaves',tip:'Blow them back onto the lawn, not into the street.',c:'#8bc34a'},
+ {id:'litter',name:'Litter',tip:'Bin it. Plastic in the creek stays for decades.',c:'#e04f3a'},
+ {id:'soap',name:'Car wash soap',tip:'Wash cars on the lawn or at a car wash that recycles water.',c:'#8fd3ff'}];
+const cv=document.getElementById('cv'),cx=cv.getContext('2d'),game=document.getElementById('game');
+const VW=300,VH=400;let sc=1;
+function fit(){const r=game.getBoundingClientRect(),d=Math.min(devicePixelRatio||1,2);cv.width=r.width*d;cv.height=r.height*d;sc=cv.width/VW}
+new ResizeObserver(fit).observe(game);fit();
+// ---- drawing helpers (game units)
+function drawItem(g,id,x,y,s){g.save();g.translate(x,y);g.scale(s,s);
+ if(id==='oil'){g.fillStyle='#2b2b2b';g.beginPath();g.moveTo(0,-9);g.bezierCurveTo(7,-1,8,4,0,9);g.bezierCurveTo(-8,4,-7,-1,0,-9);g.fill();g.fillStyle='rgba(160,120,255,.55)';g.beginPath();g.ellipse(-2,2,2.5,4,-.4,0,7);g.fill()}
+ else if(id==='fert'){g.fillStyle='#f4efe3';g.strokeStyle='#3fa34d';g.lineWidth=1.5;g.beginPath();g.roundRect(-8,-10,16,20,3);g.fill();g.stroke();g.fillStyle='#3fa34d';g.fillRect(-8,-3,16,6);for(const [a,b] of [[-3,-7],[3,-6],[0,7]]){g.beginPath();g.arc(a,b,1.3,0,7);g.fill()}}
+ else if(id==='pet'){g.fillStyle='#7a4a24';for(const [a,b,r] of [[0,5,7],[0,-1,5.2],[0,-6,3.4]]){g.beginPath();g.ellipse(a,b,r,r*.62,0,0,7);g.fill()}}
+ else if(id==='grass'){g.strokeStyle='#6aa335';g.lineWidth=2;g.lineCap='round';for(let i=-3;i<=3;i++){g.beginPath();g.moveTo(i*2.4,8);g.quadraticCurveTo(i*3.5,0,i*1.5+(i%2?3:-3),-9);g.stroke()}g.fillStyle='#d58a2c';g.beginPath();g.ellipse(5,-3,4,2.4,.7,0,7);g.fill()}
+ else if(id==='litter'){g.fillStyle='#e04f3a';g.beginPath();g.moveTo(-7,-9);g.lineTo(7,-9);g.lineTo(5,9);g.lineTo(-5,9);g.closePath();g.fill();g.fillStyle='#fff';g.fillRect(-6,-3,12,3);g.strokeStyle='#888';g.lineWidth=1.2;g.beginPath();g.moveTo(2,-9);g.lineTo(5,-14);g.stroke()}
+ else if(id==='soap'){g.fillStyle='rgba(143,211,255,.9)';g.strokeStyle='#fff';g.lineWidth=1.2;for(const [a,b,r] of [[-3,2,6],[4,-2,4.5],[2,6,3.5],[-5,-5,3]]){g.beginPath();g.arc(a,b,r,0,7);g.fill();g.stroke()}}
+ else if(id==='drop'){g.fillStyle='#2f8fd8';g.beginPath();g.moveTo(0,-7);g.bezierCurveTo(5,-1,5,4,0,6);g.bezierCurveTo(-5,4,-5,-1,0,-7);g.fill();g.fillStyle='rgba(255,255,255,.6)';g.beginPath();g.ellipse(-1.5,1,1.2,2,-.3,0,7);g.fill()}
+ g.restore()}
+// key
+const key=document.getElementById('key');
+for(const it of ITEMS){const li=document.createElement('li'),c=document.createElement('canvas');c.width=c.height=68;const g=c.getContext('2d');g.scale(2,2);drawItem(g,it.id,17,17,1.25);
+ const d=document.createElement('div');d.innerHTML='<b></b><span></span>';d.querySelector('b').textContent=it.name;d.querySelector('span').textContent=it.tip;li.append(c,d);key.appendChild(li)}
+// ---- state
+let st=null,raf=0,last=0;const keys={};
+function reset(){st={t:0,dur:45,score:0,creek:0,gx:VW/2,fall:[],spawn:0,missed:{},caught:0,rain:[],pops:[],over:false};for(let i=0;i<70;i++)st.rain.push({x:Math.random()*VW,y:Math.random()*VH,v:3+Math.random()*2})}
+function spawn(){const lvl=Math.min(1,st.t/st.dur);const isDrop=Math.random()<.32;const it=isDrop?{id:'drop'}:ITEMS[(Math.random()*ITEMS.length)|0];
+ st.fall.push({id:it.id,x:20+Math.random()*(VW-40),y:-14,v:55+lvl*85+Math.random()*25,r:(Math.random()-.5)*1.5,a:0})}
+function update(dt){st.t+=dt;if(keys.ArrowLeft)st.gx-=260*dt;if(keys.ArrowRight)st.gx+=260*dt;st.gx=Math.max(34,Math.min(VW-34,st.gx));
+ st.spawn-=dt;if(st.spawn<=0){spawn();st.spawn=Math.max(.32,1.05-st.t/st.dur*.7)*(0.7+Math.random()*.6)}
+ const gy=VH-78;
+ for(const f of st.fall){f.y+=f.v*dt;f.a+=f.r*dt}
+ st.fall=st.fall.filter(f=>{
+  if(f.y>gy-10&&f.y<gy+10&&Math.abs(f.x-st.gx)<34){if(f.id==='drop'){st.score+=2;st.pops.push({x:f.x,y:gy-14,t:0,s:'+2',c:'#2f8fd8'})}else{st.score+=10;st.caught++;st.pops.push({x:f.x,y:gy-14,t:0,s:'+10',c:'#3fa34d'})}return false}
+  if(f.y>VH-30){if(f.id!=='drop'){st.creek=Math.min(100,st.creek+7);st.missed[f.id]=(st.missed[f.id]||0)+1;st.pops.push({x:f.x,y:VH-44,t:0,s:'into the creek',c:'#b3206f'})}return false}
+  return true});
+ for(const p of st.pops)p.t+=dt;st.pops=st.pops.filter(p=>p.t<.9);
+ for(const r of st.rain){r.y+=r.v*60*dt;r.x-=.6;if(r.y>VH){r.y=-5;r.x=Math.random()*VW+20}}
+ if(st.t>=st.dur||st.creek>=100)finish()}
+function draw(){const g=cx;g.setTransform(sc,0,0,sc,0,0);
+ // sky and houses
+ const sky=g.createLinearGradient(0,0,0,VH);sky.addColorStop(0,'#9fb4c8');sky.addColorStop(1,'#d9e6ef');g.fillStyle=sky;g.fillRect(0,0,VW,VH);
+ g.fillStyle='#b9c6d2';for(const [x,w,h] of [[10,50,60],[70,40,48],[120,60,70],[190,44,52],[240,52,64]]){g.fillRect(x,VH-150-h,w,h);g.beginPath();g.moveTo(x-4,VH-150-h);g.lineTo(x+w/2,VH-172-h);g.lineTo(x+w+4,VH-150-h);g.fill()}
+ g.fillStyle='#6fae55';g.fillRect(0,VH-150,VW,46);
+ // rain
+ g.strokeStyle='rgba(47,143,216,.45)';g.lineWidth=1;g.beginPath();for(const r of st.rain){g.moveTo(r.x,r.y);g.lineTo(r.x-2,r.y+7)}g.stroke();
+ // street, curb, drain
+ g.fillStyle='#8a8f96';g.fillRect(0,VH-104,VW,74);g.fillStyle='#d6d2c8';g.fillRect(0,VH-30,VW,6);
+ g.strokeStyle='#f3d34a';g.lineWidth=2;g.setLineDash([12,10]);g.beginPath();g.moveTo(0,VH-67);g.lineTo(VW,VH-67);g.stroke();g.setLineDash([]);
+ g.fillStyle='#2a2d33';g.fillRect(VW/2-40,VH-24,80,24);g.strokeStyle='#5c6068';g.lineWidth=2;for(let i=0;i<7;i++){g.beginPath();g.moveTo(VW/2-34+i*11,VH-22);g.lineTo(VW/2-34+i*11,VH-2);g.stroke()}
+ g.fillStyle='#fff';g.font='500 7px Oswald, Arial Narrow';g.textAlign='center';g.fillText('DRAINS TO CREEK',VW/2,VH-26);
+ // falling items
+ for(const f of st.fall){g.save();g.translate(f.x,f.y);g.rotate(f.a);drawItem(g,f.id,0,0,1.15);g.restore()}
+ // rain garden catcher
+ const gy=VH-78,x=st.gx;g.fillStyle='#6b4a2f';g.beginPath();g.moveTo(x-36,gy-4);g.lineTo(x+36,gy-4);g.lineTo(x+28,gy+10);g.lineTo(x-28,gy+10);g.closePath();g.fill();
+ g.fillStyle='#3f8f3a';for(let i=-4;i<=4;i++){g.beginPath();g.ellipse(x+i*7.5,gy-6-(i%2?3:0),4.5,7,0,0,7);g.fill()}
+ for(const [dx,c] of [[-21,'#9b59b6'],[-7,'#f4c542'],[9,'#e67e22'],[22,'#9b59b6']]){g.fillStyle=c;g.beginPath();g.arc(x+dx,gy-14,2.6,0,7);g.fill()}
+ // score bar
+ g.fillStyle='rgba(15,13,85,.82)';g.fillRect(0,0,VW,26);g.fillStyle='#fff';g.font='500 13px Oswald, Arial Narrow';g.textAlign='left';g.fillText('SCORE '+st.score,8,18);
+ g.textAlign='right';g.fillText(Math.max(0,Math.ceil(st.dur-st.t))+'s',VW-8,18);
+ // creek health meter
+ g.textAlign='center';g.font='500 9px Oswald, Arial Narrow';g.fillText('CREEK',VW/2-46,17);
+ g.fillStyle='rgba(255,255,255,.25)';g.fillRect(VW/2-26,9,92,10);const cm=st.creek/100;
+ g.fillStyle=cm<.4?'#4fc3f7':cm<.75?'#c9a227':'#8d5a2b';g.fillRect(VW/2-26,9,92*cm,10);
+ // pops
+ for(const p of st.pops){g.globalAlpha=1-p.t/.9;g.fillStyle=p.c;g.font='500 11px Oswald, Arial Narrow';g.fillText(p.s,p.x,p.y-p.t*22)}g.globalAlpha=1}
+function loop(ts){raf=requestAnimationFrame(loop);const dt=Math.min(.05,(ts-(last||ts))/1000);last=ts;if(document.hidden||st.over)return;update(dt);draw()}
+function finish(){st.over=true;cancelAnimationFrame(raf);
+ const clean=st.creek<40,ok=st.creek<75;
+ document.getElementById('etitle').textContent=st.creek>=100?'The creek got polluted':clean?'Creek protected':ok?'Good effort':'Tough storm';
+ document.getElementById('escore').textContent=st.score;
+ document.getElementById('emsg').textContent=`You caught ${st.caught} piece${st.caught===1?'':'s'} of pollution.`+(Object.keys(st.missed).length?' These got into the creek, and here is how to stop them at home:':' Nothing got past you. Here is how to keep it that way at home:');
+ const ul=document.getElementById('etips');ul.innerHTML='';
+ const list=Object.keys(st.missed).length?ITEMS.filter(i=>st.missed[i.id]).sort((a,b)=>st.missed[b.id]-st.missed[a.id]).slice(0,3):ITEMS.slice(0,3);
+ for(const it of list){const li=document.createElement('li');li.style.setProperty('--c',it.c);li.textContent=it.name+': '+it.tip;ul.appendChild(li)}
+ document.getElementById('end').hidden=false;document.getElementById('again').focus()}
+function start(){reset();document.getElementById('start').hidden=true;document.getElementById('end').hidden=true;last=0;cancelAnimationFrame(raf);raf=requestAnimationFrame(loop)}
+document.getElementById('play').addEventListener('click',start);document.getElementById('again').addEventListener('click',start);
+// controls
+function moveTo(clientX){if(!st)return;const r=game.getBoundingClientRect();st.gx=(clientX-r.left)/r.width*VW}
+game.addEventListener('pointermove',e=>{if(e.pointerType==='mouse'||e.buttons)moveTo(e.clientX)});
+game.addEventListener('pointerdown',e=>{if(e.target===cv){moveTo(e.clientX);cv.setPointerCapture(e.pointerId)}});
+addEventListener('keydown',e=>{if(e.key==='ArrowLeft'||e.key==='ArrowRight'){keys[e.key]=true;if(st&&!st.over)e.preventDefault()}});
+addEventListener('keyup',e=>{keys[e.key]=false});
+reset();draw();
+}
+</script>
+</body>
+</html>
