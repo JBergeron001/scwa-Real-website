@@ -307,8 +307,8 @@ async function openView(kind,id,opt={}){if(busy)return;busy=true;const s=kind===
   clearTrace();if(shedT){scene.remove(shedT.group);shedT.dispose()}
   shedT=T;cur=T;view={kind,id};county.group.visible=false;county.labs.forEach(L=>L.e.style.display='none');scene.add(T.group);placeCloud(T);
   if(!NOTES){try{NOTES=await (await fetch('watersheds/notes.json',{cache:'no-cache'})).json()}catch(e){NOTES={}}}
-  viewInfo=kind==='group'?{name:grpTitle(s),desc:groupDesc(s)+` · ${ft(T.lo)}–${ft(T.hi)} ft`,about:D.about,note:(NOTES[D.slug]||{}).note}
-   :{name:s[1],desc:`${sqmi(s[2])} sq mi · ${ft(T.lo)}–${ft(T.hi)} ft · ${Math.round(s[5]*100)}% in county`,about:D.about,note:(NOTES[D.slug]||{}).note,addr:opt.addr?'Your search: '+opt.addr:''};
+  viewInfo=kind==='group'?{name:grpTitle(s),desc:groupDesc(s)+` · ${elev(D,T)}`,about:D.about,note:(NOTES[D.slug]||{}).note}
+   :{name:s[1],desc:`${sqmi(s[2])} sq mi · ${elev(D,T)} · ${Math.round(s[5]*100)}% in county`,about:D.about,note:(NOTES[D.slug]||{}).note,addr:opt.addr?'Your search: '+opt.addr:''};
   setInfo(viewInfo);
   document.getElementById('idet').open=innerWidth>600&&!!opt.addr&&card.classList.contains('fs');
   storyEl.hidden=true;
@@ -320,6 +320,7 @@ async function openView(kind,id,opt={}){if(busy)return;busy=true;const s=kind===
   const p0=poseFor(T);cam.position.copy(p0.tg.clone().addScaledVector(camDir,p0.p.distanceTo(p0.tg)*2.2));ctl.target.copy(p0.tg);flyTo(T,1200);
  }catch(e){loadEl.textContent='Could not load that watershed. Please try again.';setTimeout(()=>loadEl.style.display='none',2500);busy=false;return}
  loadEl.style.display='none';busy=false}
+function elev(D,T){return D.elo?`${D.elo.toLocaleString()}–${D.ehi.toLocaleString()} ft`:`${ft(T.lo)}–${ft(T.hi)} ft`}
 const openShed=(id,opt)=>openView('shed',id,opt);
 function showCounty(){if(cur===county)return;clearTrace();storyEl.hidden=true;curSlug='';selInfo=null;stage.classList.remove('has-sel');upB.hidden=true;try{history.replaceState(null,'',location.pathname+location.search)}catch(e){}scene.remove(shedT.group);shedT.dispose();shedT=null;cur=county;view={kind:'county'};county.group.visible=true;
  st.ex=countyEx;setEx();placeCloud(county);stage.classList.remove('view-shed');sel.value='c';touched=false;flyTo(county,1000)}
