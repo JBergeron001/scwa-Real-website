@@ -390,11 +390,16 @@ backB.addEventListener('click',()=>{if(fsEl()){(document.exitFullscreen||documen
 // ---------- where does my rain go (visual) ----------
 const storyEl=document.getElementById('story');let trace=null;
 function flowField(T){if(T.ff)return T.ff;const {NX,NY,N}=T,ins=T.inC,Hf=new Float32Array(N),done=new Uint8Array(N),out=new Uint8Array(N),to=new Int32Array(N).fill(-1);
+ // only water that reaches the edge of the map (the big rivers) ends the trip; ponds and lakes are passed through
+ const rivW=new Uint8Array(N),seen=new Uint8Array(N);
+ for(let s0=0;s0<N;s0++){if(seen[s0]||!ins(s0)||T.cls(s0)!==1)continue;const comp=[s0],st=[s0];seen[s0]=1;let edgeHit=false;
+  while(st.length){const c=st.pop(),i=(c/NX)|0,j=c%NX;for(let a=-1;a<=1;a++)for(let b=-1;b<=1;b++){const ii=i+a,jj=j+b;if(ii<0||jj<0||ii>=NY||jj>=NX){edgeHit=true;continue}const n=ii*NX+jj;if(!ins(n)){edgeHit=true;continue}if(seen[n]||T.cls(n)!==1)continue;seen[n]=1;comp.push(n);st.push(n)}}
+  if(edgeHit)for(const c of comp)rivW[c]=1}
  for(let k=0;k<N;k++)Hf[k]=T.elevAt(k);
  const hp=[],push=k=>{hp.push(k);let i=hp.length-1;while(i){const p=(i-1)>>1;if(Hf[hp[p]]<=Hf[hp[i]])break;[hp[p],hp[i]]=[hp[i],hp[p]];i=p}},
   pop=()=>{const top=hp[0],l=hp.pop();if(hp.length){hp[0]=l;let i=0;for(;;){const a=2*i+1,b=a+1;let m=i;if(a<hp.length&&Hf[hp[a]]<Hf[hp[m]])m=a;if(b<hp.length&&Hf[hp[b]]<Hf[hp[m]])m=b;if(m===i)break;[hp[m],hp[i]]=[hp[i],hp[m]];i=m}}return top};
  for(let i=0;i<NY;i++)for(let j=0;j<NX;j++){const k=i*NX+j;if(!ins(k))continue;
-  let edge=i===0||j===0||i===NY-1||j===NX-1||T.cls(k)===1;if(!edge)for(let a=-1;a<=1&&!edge;a++)for(let b=-1;b<=1;b++)if(!ins(k+a*NX+b)){edge=true;break}
+  let edge=i===0||j===0||i===NY-1||j===NX-1||(T.cls(k)===1&&rivW[k]);if(!edge)for(let a=-1;a<=1&&!edge;a++)for(let b=-1;b<=1;b++)if(!ins(k+a*NX+b)){edge=true;break}
   if(edge){out[k]=1;done[k]=1;push(k)}}
  const order=[];
  while(hp.length){const c=pop();order.push(c);const i=(c/NX)|0,j=c%NX;for(let a=-1;a<=1;a++)for(let b=-1;b<=1;b++){const ii=i+a,jj=j+b;if(ii<0||jj<0||ii>=NY||jj>=NX)continue;const n=ii*NX+jj;if(done[n]||!ins(n))continue;done[n]=1;if(Hf[n]<=Hf[c])Hf[n]=Hf[c]+1e-3;push(n)}}
@@ -431,7 +436,7 @@ function startTrace(T,k0){if(k0<0||!T.inC(k0))return;clearTrace();const {to,acc,
  T.group.add(trail,pts);
  const spd=Math.max(30,maxSteps/7);trace={T,pts,arr,parts,to,out,trail,total:tg.index?tg.index.count:0,path,speed:spd,t0:performance.now(),dur:maxSteps/spd+1.5};
  storyEl.hidden=true}
-function stepTrace(){const tr=trace,T=tr.T,pn=performance.now(),now=(pn-tr.t0)/1000,rdt=Math.min(.1,(pn-(tr.lt||pn))/1000);tr.lt=pn;
+function stepTrace(){const tr=trace,T=tr.T,pn=performance.now(),now=(pn-tr.t0)/1000,rdt=Math.min(.5,(pn-(tr.lt||pn))/1000);tr.lt=pn;
  if(now>tr.dur+1.2){tr.t0=performance.now();for(const q of tr.parts){q.k=q.k0;q.t=0}}
  const adv=rdt*tr.speed;let lead=0;
  tr.parts.forEach((q,i)=>{if(now<q.delay){tr.arr[i*3+1]=-999;return}
